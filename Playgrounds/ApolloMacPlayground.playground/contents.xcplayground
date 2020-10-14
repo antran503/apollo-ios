@@ -7,5 +7,6 @@
         <page name='Subscriptions'/>
         <page name='SQLiteCache'/>
         <page name='CustomScalars'/>
+        <page name='CustomNetworkTransport'/>
     </pages>
 </playground>
