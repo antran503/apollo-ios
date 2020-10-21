@@ -85,14 +85,16 @@ public class FieldGenerator {
   
   open var fragmentFieldTemplate: String {
 ##"""
-{{ accessor }} {{ field.nameVariableDeclaration }}: {{ field.swiftType }} {{ fragmentDeclaration }}
+{% if field.description != nil %}/// {{ field.description }}
+{% endif %}{{ accessor }} {{ field.nameVariableDeclaration }}: {{ field.swiftType }} {{ fragmentDeclaration }}
 """##
     
   }
   
   open var fieldTemplate: String {
 ##"""
-{{ modifier }} {{ accessor.declaration }} {{ field.nameVariableDeclaration }}: {{ field.swiftType }}
+{% if field.description != nil %}/// {{ field.description }}
+{% endif %}{{ modifier }} {{ accessor.declaration }} {{ field.nameVariableDeclaration }}: {{ field.swiftType }}
 """##
   }
 }

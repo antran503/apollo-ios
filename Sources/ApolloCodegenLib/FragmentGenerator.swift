@@ -66,8 +66,9 @@ public class FragmentGenerator {
   open var fragmentTemplate: String {
     ##"""
 {{ modifier }}protocol {{ fragment.name }}: GraphQLFragment, Codable {
-{% for field in renderedFields %}  {{ field }}{% if not forloop.last %}{% endif %}
-{% endfor %}}
+{% for field in renderedFields %}{{ field | indent:2, " ", true }}{% if not forloop.last %}
+{% endif %}{% endfor %}
+}
 
 // MARK: - Default implementation
 
