@@ -40,7 +40,7 @@ extension ASTVariableType {
   static func nonNullList(of type: ASTVariableType) -> ASTVariableType {
     ASTVariableType(kind: .NonNullType,
                     name: nil,
-                    type: type,
+                    type: list(of: type),
                     value: nil)
   }
 }

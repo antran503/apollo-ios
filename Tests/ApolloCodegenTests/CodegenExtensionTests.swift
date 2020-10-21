@@ -43,7 +43,7 @@ class CodegenExtensionTests: XCTestCase {
       XCTFail("Well that shouldn't have worked")
     } catch {
       switch error {
-      case ApolloStringError.expectedSuffixMissing(let expectedSuffix):
+      case ApolloStringError.expectedSuffixMissing(let expectedSuffix, _):
         XCTAssertEqual(expectedSuffix, suffix)
       default:
         XCTFail("Unexpected error: \(error)")

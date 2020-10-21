@@ -1,4 +1,4 @@
-import Foundation
+ import Foundation
 
 /// A reusable fragment to generate code for
 struct ASTFragment: Codable, Equatable {

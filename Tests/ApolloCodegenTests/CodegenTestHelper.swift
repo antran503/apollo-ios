@@ -38,7 +38,7 @@ struct CodegenTestHelper {
         print("🐶☕️🔥 This is fine")
     } else {
       // There was an actual problem.
-      XCTFail("Unexpected error loading file: \(error)",
+      XCTFail("Unexpected error loading file: \(error.localizedDescription)",
         file: file,
         line: line)
     }

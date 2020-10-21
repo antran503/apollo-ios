@@ -4,12 +4,12 @@ import ApolloCore
 #endif
 
 enum ApolloStringError: Error, LocalizedError {
-  case expectedSuffixMissing(_ suffix: String)
+  case expectedSuffixMissing(suffix: String, original: String)
   
   var errorDescription: String? {
     switch self {
-    case .expectedSuffixMissing(let suffix):
-      return "Expected \"\(self)\" to have suffix \"\(suffix)\", but it did not. Cannot drop a suffix that doesn't exist!"
+    case .expectedSuffixMissing(let suffix, let original):
+      return "Expected \"\(original)\" to have suffix \"\(suffix)\", but it did not. Cannot drop a suffix that doesn't exist!"
     }
   }
 }
@@ -18,7 +18,7 @@ extension ApolloExtension where Base == String {
   
   func droppingSuffix(_ suffix: String) throws -> String {
     guard base.hasSuffix(suffix) else {
-      throw ApolloStringError.expectedSuffixMissing(suffix)
+      throw ApolloStringError.expectedSuffixMissing(suffix: suffix, original: base)
     }
     return String(base.dropLast(suffix.count))
   }
