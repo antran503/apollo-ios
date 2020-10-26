@@ -5551,7 +5551,7 @@
 					}
 				}
 			],
-			"source": "subscription ReviewAdded($episode: Episode) {\n  reviewAdded(episode: $episode) {\n    __typename\n    episode\n    stars\n    commentary\n  }\n}",
+			"source": "subscription ReviewAdded($episode: Episode) {\n  reviewAdded(episode: $episode) {\n    __typename\n    ...ReviewDetails\n  }\n}",
 			"fields": [
 				{
 					"responseName": "reviewAdded",
@@ -5650,15 +5650,19 @@
 							"isDeprecated": false
 						}
 					],
-					"fragmentSpreads": [],
+					"fragmentSpreads": [
+						"ReviewDetails"
+					],
 					"inlineFragments": []
 				}
 			],
 			"fragmentSpreads": [],
 			"inlineFragments": [],
-			"fragmentsReferenced": [],
-			"sourceWithFragments": "subscription ReviewAdded($episode: Episode) {\n  reviewAdded(episode: $episode) {\n    __typename\n    episode\n    stars\n    commentary\n  }\n}",
-			"operationId": "38644c5e7cf4fd506b91d2e7010cabf84e63dfcd33cf1deb443b4b32b55e2cbe"
+			"fragmentsReferenced": [
+				"ReviewDetails"
+			],
+			"sourceWithFragments": "subscription ReviewAdded($episode: Episode) {\n  reviewAdded(episode: $episode) {\n    __typename\n    ...ReviewDetails\n  }\n}\nfragment ReviewDetails on Review {\n  __typename\n  episode\n  stars\n  commentary\n}",
+			"operationId": "3708cf1ff3d45d705884554cc60bf4d81af8aa696f903d0d0b2016ca0c7906da"
 		},
 		{
 			"filePath": "file:///Users/ellen/Desktop/Work/Apollo/apollo-ios/Sources/StarWarsAPI/TestFolder/TestFolder2/Human.graphql",
@@ -7321,6 +7325,91 @@
 					},
 					"isConditional": false,
 					"description": "The movies this character appears in",
+					"isDeprecated": false
+				}
+			],
+			"fragmentSpreads": [],
+			"inlineFragments": []
+		},
+		{
+			"typeCondition": "Review",
+			"possibleTypes": [
+				"Review"
+			],
+			"fragmentName": "ReviewDetails",
+			"filePath": "file:///Users/ellen/Desktop/Work/Apollo/apollo-ios/Sources/StarWarsAPI/SubscribeReview.graphql",
+			"source": "fragment ReviewDetails on Review {\n  __typename\n  episode\n  stars\n  commentary\n}",
+			"typeNode": {
+				"kind": "NamedType",
+				"name": {
+					"kind": "Name",
+					"value": "Review"
+				}
+			},
+			"fields": [
+				{
+					"responseName": "__typename",
+					"fieldName": "__typename",
+					"type": "String!",
+					"typeNode": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "String"
+							}
+						}
+					},
+					"isConditional": false,
+					"isDeprecated": false
+				},
+				{
+					"responseName": "episode",
+					"fieldName": "episode",
+					"type": "Episode",
+					"typeNode": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Episode"
+						}
+					},
+					"isConditional": false,
+					"description": "The movie",
+					"isDeprecated": false
+				},
+				{
+					"responseName": "stars",
+					"fieldName": "stars",
+					"type": "Int!",
+					"typeNode": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "Int"
+							}
+						}
+					},
+					"isConditional": false,
+					"description": "The number of stars this review gave, 1-5",
+					"isDeprecated": false
+				},
+				{
+					"responseName": "commentary",
+					"fieldName": "commentary",
+					"type": "String",
+					"typeNode": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "String"
+						}
+					},
+					"isConditional": false,
+					"description": "Comment about the movie",
 					"isDeprecated": false
 				}
 			],

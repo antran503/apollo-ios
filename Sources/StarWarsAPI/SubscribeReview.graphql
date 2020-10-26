@@ -1,8 +1,12 @@
 subscription ReviewAdded($episode: Episode) {
   reviewAdded(episode: $episode) {
-    episode
-    stars
-    commentary
+    ...ReviewDetails
   }
+}
+
+fragment ReviewDetails on Review {
+	episode
+	stars
+	commentary
 }
 
