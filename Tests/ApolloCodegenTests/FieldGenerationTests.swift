@@ -11,8 +11,36 @@ import XCTest
 
 class FieldGenerationTests: XCTestCase {
   
-  func testGeneratingNonNullArrayOfNonNullObjectsForFragment() throws {
-    let appearsInField = ASTField(responseName: "appearsIn",
+  var typenameField: ASTField {
+    ASTField(responseName: "__typename",
+                                 fieldName: "__typename",
+                                 typeNode: .nonNullNamed("String"),
+                                 isConditional: false,
+                                 conditions: nil,
+                                 description: nil,
+                                 isDeprecated: nil,
+                                 args: nil,
+                                 fields: nil,
+                                 fragmentSpreads: nil,
+                                 inlineFragments: nil)
+  }
+  
+  var nameField: ASTField {
+    ASTField(responseName: "name",
+                             fieldName: "name",
+                             typeNode: .nonNullNamed("String"),
+                             isConditional: false,
+                             conditions: nil,
+                             description: "The name of the character",
+                             isDeprecated: nil,
+                             args: nil,
+                             fields: nil,
+                             fragmentSpreads: nil,
+                             inlineFragments: nil)
+  }
+  
+  var appearsInField: ASTField {
+    ASTField(responseName: "appearsIn",
                                   fieldName: "appearsIn",
                                   typeNode: .nonNullList(of: .nonNullNamed("Episode")),
                                   isConditional: false,
@@ -23,11 +51,32 @@ class FieldGenerationTests: XCTestCase {
                                   fields: nil,
                                   fragmentSpreads: nil,
                                   inlineFragments: nil)
-    
+  }
+  
+  var characterNameAndAppearsInFragment: ASTFragment {
+    ASTFragment(typeCondition: "Character",
+                possibleTypes: [
+                  "Human",
+                  "Droid"
+                ],
+                fragmentName: "CharacterNameAndAppearsIn",
+                filePath: "",
+                source: "fragment CharacterNameAndAppearsIn on Character {\n  __typename\n  name\n  appearsIn\n}",
+                fields: [
+                  typenameField,
+                  nameField,
+                  appearsInField,
+                ],
+                fragmentSpreads: [],
+                inlineFragments: [])
+  }
+  
+  func testGeneratingNonNullArrayOfNonNullObjectsForFragment() throws {
     let generator = FieldGenerator()
     let output = try generator.run(field: appearsInField,
                                    accessor: .mutable,
                                    fragmentMode: .getterOnly,
+                                   parentFragment: characterNameAndAppearsInFragment,
                                    options: CodegenTestHelper.dummyOptions())
     
     XCTAssertEqual(
@@ -39,21 +88,11 @@ var appearsIn: [Episode] { get }
   
   
   func testGeneratingNonNullTypeForFragment() throws {
-    let nameField = ASTField(responseName: "name",
-                             fieldName: "name",
-                             typeNode: .nonNullNamed("String"),
-                             isConditional: false,
-                             conditions: nil,
-                             description: "The name of the character",
-                             isDeprecated: nil,
-                             args: nil,
-                             fields: nil,
-                             fragmentSpreads: nil,
-                             inlineFragments: nil)
     let generator = FieldGenerator()
     let output = try generator.run(field: nameField,
                                    accessor: .mutable,
                                    fragmentMode: .getterOnly,
+                                   parentFragment: characterNameAndAppearsInFragment,
                                    options: CodegenTestHelper.dummyOptions())
     
     XCTAssertEqual(
@@ -64,21 +103,11 @@ var name: String { get }
   }
   
   func testGeneratingUnionTypeForFragment() throws {
-    let typenameField = ASTField(responseName: "__typename",
-                                 fieldName: "__typename",
-                                 typeNode: .nonNullNamed("Character"),
-                                 isConditional: false,
-                                 conditions: nil,
-                                 description: nil,
-                                 isDeprecated: nil,
-                                 args: nil,
-                                 fields: nil,
-                                 fragmentSpreads: nil,
-                                 inlineFragments: nil)
     let generator = FieldGenerator()
     let output = try generator.run(field: typenameField,
                                    accessor: .mutable,
                                    fragmentMode: .getterOnly,
+                                   parentFragment: characterNameAndAppearsInFragment,
                                    options: CodegenTestHelper.dummyOptions())
     
     XCTAssertEqual(

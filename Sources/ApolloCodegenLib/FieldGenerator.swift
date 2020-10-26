@@ -1,5 +1,6 @@
 import Foundation
 import Stencil
+import ApolloCore
 
 public class FieldGenerator {
   public enum FragmentMode {
@@ -39,18 +40,29 @@ public class FieldGenerator {
     public let isDeprecated: Bool
     public let fields: [SanitizedField]?
     
-    init(field: ASTField) throws {
+    init(field: ASTField, parentFragment: ASTFragment? = nil) throws {
       self.name = field.responseName
       self.nameVariableDeclaration = field.responseName.apollo.sanitizedVariableDeclaration
       self.nameVariableUsage = field.responseName.apollo.sanitizedVariableUsage
 
-      // TODO: Figure out if the underlying type here is a union or variable type. How? No idea.
-      self.swiftType = try field.typeNode.toSwiftType()
+      if
+        let fragment = parentFragment,
+        field.fieldName == "__typename",
+        fragment.possibleTypes.apollo.isNotEmpty {
+          // This is a type that's on a union or an interface. Use the type condition.
+          var typeName = "\(fragment.typeCondition)Type"
+          if field.typeNode.kind != .NonNullType {
+            typeName.append("?")
+          }
+          self.swiftType = typeName
+      } else {
+        self.swiftType = try field.typeNode.toSwiftType()
+      }
             
       self.description = field.description
       self.isDeprecated = field.isDeprecated.apollo.boolValue
       
-      self.fields = try field.fields?.map { try SanitizedField(field: $0) }
+      self.fields = try field.fields?.map { try SanitizedField(field: $0, parentFragment: nil) }
     }
   }
   
@@ -64,8 +76,9 @@ public class FieldGenerator {
   func run(field: ASTField,
            accessor: Accessor = .immutable,
            fragmentMode: FragmentMode = .none,
+           parentFragment: ASTFragment? = nil,
            options: ApolloCodegenOptions) throws -> String {
-    let sanitized = try SanitizedField(field: field)
+    let sanitized = try SanitizedField(field: field, parentFragment: parentFragment)
     
     let context: [FieldContextKey: Any] = [
       .field: sanitized,

@@ -14,7 +14,7 @@ class FragmentGenerationTests: XCTestCase {
   func testGeneratingFragmentWithUnionTypeForTypename() throws {
     let typenameField = ASTField(responseName: "__typename",
                                  fieldName: "__typename",
-                                 typeNode: .nonNullNamed("Character"),
+                                 typeNode: .nonNullNamed("String"),
                                  isConditional: false,
                                  conditions: nil,
                                  description: nil,

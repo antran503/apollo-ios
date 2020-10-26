@@ -6,6 +6,12 @@ public class FragmentGenerator {
     /// The name of the fragment.
     let name: String
     
+    /// The primary type the fragment is defined on
+    let typeCondition: String
+    
+    /// All possible types that fragment could represent, if for instance the primary type is a Union or an Interface.
+    let possibleTypes: [String]
+    
     let fields: [ASTField]
     
     /// The variable declaration of the fragment
@@ -25,11 +31,12 @@ public class FragmentGenerator {
         self.name = fragment.fragmentName
       }
       
-      
       self.nameVariableDeclaration = self.name.apollo.sanitizedVariableDeclaration
       self.nameVariableUsage = self.name.apollo.sanitizedVariableUsage
       self.fields = fragment.fields
       self.source = fragment.source
+      self.typeCondition = fragment.typeCondition
+      self.possibleTypes = fragment.possibleTypes
     }
   }
   
@@ -47,7 +54,13 @@ public class FragmentGenerator {
     let sanitized = SanitizedFragment(from: fragment)
     
     let fieldGenerator = FieldGenerator()
-    let renderedFields = try sanitized.fields.map { try fieldGenerator.run(field: $0, accessor: .mutable, fragmentMode: .getterOnly, options: options) }
+    let renderedFields = try sanitized.fields.map {
+      try fieldGenerator.run(field: $0,
+                             accessor: .mutable,
+                             fragmentMode: .getterOnly,
+                             parentFragment: fragment,
+                             options: options)
+    }
     
     let context: [FragmentContextKey: Any] = [
       .fragment: sanitized,
