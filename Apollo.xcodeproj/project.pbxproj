@@ -38,6 +38,7 @@
 		9B2DFBC724E1FA4800ED3AE6 /* UploadAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B2DFBC524E1FA3E00ED3AE6 /* UploadAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9B2DFBCD24E201A800ED3AE6 /* UploadAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2DFBB624E1FA0D00ED3AE6 /* UploadAPI.framework */; };
 		9B2DFBCF24E201DD00ED3AE6 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2DFBCE24E201DD00ED3AE6 /* API.swift */; };
+		9B3056142548CA54001EF126 /* ExpectedDroidDetailsFragment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3056132548CA54001EF126 /* ExpectedDroidDetailsFragment.swift */; };
 		9B3D70F92488340400D8BAF4 /* ASTUnionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3D70F82488340400D8BAF4 /* ASTUnionType.swift */; };
 		9B3D70FA2488340C00D8BAF4 /* ASTInterfaceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3D70F6248833CB00D8BAF4 /* ASTInterfaceType.swift */; };
 		9B3D70FC2488388300D8BAF4 /* InterfaceEnumGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3D70FB2488388300D8BAF4 /* InterfaceEnumGenerator.swift */; };
@@ -538,6 +539,7 @@
 		9B2DFBD024E201F800ED3AE6 /* schema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = schema.json; sourceTree = "<group>"; };
 		9B2DFBD124E201F800ED3AE6 /* UploadMultipleFiles.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = UploadMultipleFiles.graphql; sourceTree = "<group>"; };
 		9B2DFBD224E201F800ED3AE6 /* UploadOneFile.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = UploadOneFile.graphql; sourceTree = "<group>"; };
+		9B3056132548CA54001EF126 /* ExpectedDroidDetailsFragment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpectedDroidDetailsFragment.swift; sourceTree = "<group>"; };
 		9B3D70F5248832AE00D8BAF4 /* API.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = API.json; sourceTree = "<group>"; };
 		9B3D70F6248833CB00D8BAF4 /* ASTInterfaceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASTInterfaceType.swift; sourceTree = "<group>"; };
 		9B3D70F82488340400D8BAF4 /* ASTUnionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASTUnionType.swift; sourceTree = "<group>"; };
@@ -1274,6 +1276,7 @@
 			isa = PBXGroup;
 			children = (
 				9BBC02CA253FB3E300B6B52D /* ExpectedCharacterNameAndAppearsInFragment.swift */,
+				9B3056132548CA54001EF126 /* ExpectedDroidDetailsFragment.swift */,
 			);
 			name = Fragment;
 			sourceTree = "<group>";
@@ -2503,6 +2506,7 @@
 				9B68F04F2413271D00E97318 /* EnumGenerationTests.swift in Sources */,
 				9BAEEC10234BB95B00808306 /* FileManagerExtensionsTests.swift in Sources */,
 				9B21FD792424305E00998B5C /* ExpectedEnumWithSanitizedCases.swift in Sources */,
+				9B3056142548CA54001EF126 /* ExpectedDroidDetailsFragment.swift in Sources */,
 				9BBC02F9253FC3DE00B6B52D /* FragmentGenerationTests.swift in Sources */,
 				9B68F0532415B1C800E97318 /* ExpectedEpisodeEnum.swift in Sources */,
 				9BAEEC17234C275600808306 /* ApolloSchemaTests.swift in Sources */,

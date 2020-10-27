@@ -11,7 +11,7 @@ import XCTest
 
 class FragmentGenerationTests: XCTestCase {
   
-  func testGeneratingFragmentWithUnionTypeForTypename() throws {
+  func testGeneratingFragmentWithInterfaceTypeForTypename() throws {
     let typenameField = ASTField(responseName: "__typename",
                                  fieldName: "__typename",
                                  typeNode: .nonNullNamed("String"),
@@ -72,6 +72,74 @@ class FragmentGenerationTests: XCTestCase {
         .appendingPathComponent("Tests")
         .appendingPathComponent("ApolloCodegenTests")
         .appendingPathComponent("ExpectedCharacterNameAndAppearsInFragment.swift")
+
+      LineByLineComparison.between(received: output,
+                                   expectedFileURL: expectedFileURL,
+                                   trimImports: true)
+    } catch {
+      CodegenTestHelper.handleFileLoadError(error)
+    }
+  }
+  
+  func testGeneratingFragmentWithImplementerOfInterfaceTypeAsTypeCondition() {
+    let typenameField = ASTField(responseName: "__typename",
+                                 fieldName: "__typename",
+                                 typeNode: .nonNullNamed("String"),
+                                 isConditional: false,
+                                 conditions: nil,
+                                 description: nil,
+                                 isDeprecated: nil,
+                                 args: nil,
+                                 fields: nil,
+                                 fragmentSpreads: nil,
+                                 inlineFragments: nil)
+    let nameField = ASTField(responseName: "name",
+                             fieldName: "name",
+                             typeNode: .nonNullNamed("String"),
+                             isConditional: false,
+                             conditions: nil,
+                             description: "What others call this droid",
+                             isDeprecated: nil,
+                             args: nil,
+                             fields: nil,
+                             fragmentSpreads: nil,
+                             inlineFragments: nil)
+    let primaryFunctionField = ASTField(responseName: "primaryFunction",
+                                        fieldName: "primaryFunction",
+                                        typeNode: .nonNullNamed("String"),
+                                        isConditional: false,
+                                        conditions: nil,
+                                        description: "This droid's primary function",
+                                        isDeprecated: nil,
+                                        args: nil,
+                                        fields: nil,
+                                        fragmentSpreads: nil,
+                                        inlineFragments: nil)
+    
+    let fragment = ASTFragment(typeCondition: "Droid",
+                               possibleTypes: [
+                                 "Droid"
+                               ],
+                               fragmentName: "DroidDetails",
+                               filePath: "",
+                               source: "fragment DroidDetails on Droid {\n  __typename\n  name\n  primaryFunction\n}",
+                               fields: [
+                                typenameField,
+                                nameField,
+                                primaryFunctionField,
+                               ],
+                               fragmentSpreads: [],
+                               inlineFragments: [])
+    
+    do {
+      let generator = FragmentGenerator()
+      let output = try generator.run(fragment: fragment,
+                                     options: CodegenTestHelper.dummyOptions())
+
+      let expectedFileURL = CodegenTestHelper.sourceRootURL()
+        .appendingPathComponent("Tests")
+        .appendingPathComponent("ApolloCodegenTests")
+        .appendingPathComponent("ExpectedDroidDetailsFragment.swift")
 
       LineByLineComparison.between(received: output,
                                    expectedFileURL: expectedFileURL,

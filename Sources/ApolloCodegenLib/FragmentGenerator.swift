@@ -83,8 +83,7 @@ public class FragmentGenerator {
 {% endif %}{% endfor %}
 }
 
-// MARK: - Default implementation
-
+/// Default implementation
 {{ modifier }}extension {{ fragment.name }} {
   static var fragmentDefinition: String {
 #"""

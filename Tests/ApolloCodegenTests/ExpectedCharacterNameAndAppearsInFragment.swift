@@ -9,8 +9,7 @@ public protocol CharacterNameAndAppearsIn: GraphQLFragment, Codable {
   var appearsIn: [Episode] { get }
 }
 
-// MARK: - Default implementation
-
+/// Default implementation
 public extension CharacterNameAndAppearsIn {
   static var fragmentDefinition: String {
 #"""
