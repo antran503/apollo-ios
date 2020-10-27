@@ -49,6 +49,7 @@ public class FieldGenerator {
         let fragment = parentFragment,
         field.fieldName == "__typename",
         fragment.possibleTypes.apollo.isNotEmpty {
+          #warning("This isn't actually correct, but we need to figure out how to know this")
           // This is a type that's on a union or an interface. Use the type condition.
           var typeName = "\(fragment.typeCondition)Type"
           if field.typeNode.kind != .NonNullType {
