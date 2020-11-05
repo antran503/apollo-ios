@@ -2,7 +2,7 @@ import Foundation
 import Apollo
 
 public protocol DroidDetails: GraphQLFragment, Codable {
-  var __typename: CharacterType { get }
+  var __typename: String { get }
   /// What others call this droid
   var name: String { get }
   /// This droid's primary function

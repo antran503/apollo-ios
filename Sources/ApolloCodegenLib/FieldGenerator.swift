@@ -40,30 +40,16 @@ public class FieldGenerator {
     public let isDeprecated: Bool
     public let fields: [SanitizedField]?
     
-    init(field: ASTField, parentFragment: ASTFragment? = nil) throws {
+    init(field: ASTField) throws {
       self.name = field.responseName
       self.nameVariableDeclaration = field.responseName.apollo.sanitizedVariableDeclaration
       self.nameVariableUsage = field.responseName.apollo.sanitizedVariableUsage
-
-      if
-        let fragment = parentFragment,
-        field.fieldName == "__typename",
-        fragment.possibleTypes.apollo.isNotEmpty {
-          #warning("This isn't actually correct, but we need to figure out how to know this")
-          // This is a type that's on a union or an interface. Use the type condition.
-          var typeName = "\(fragment.typeCondition)Type"
-          if field.typeNode.kind != .NonNullType {
-            typeName.append("?")
-          }
-          self.swiftType = typeName
-      } else {
-        self.swiftType = try field.typeNode.toSwiftType()
-      }
+      self.swiftType = try field.typeNode.toSwiftType()
             
       self.description = field.description
       self.isDeprecated = field.isDeprecated.apollo.boolValue
       
-      self.fields = try field.fields?.map { try SanitizedField(field: $0, parentFragment: nil) }
+      self.fields = try field.fields?.map { try SanitizedField(field: $0) }
     }
   }
   
@@ -77,9 +63,8 @@ public class FieldGenerator {
   func run(field: ASTField,
            accessor: Accessor = .immutable,
            fragmentMode: FragmentMode = .none,
-           parentFragment: ASTFragment? = nil,
            options: ApolloCodegenOptions) throws -> String {
-    let sanitized = try SanitizedField(field: field, parentFragment: parentFragment)
+    let sanitized = try SanitizedField(field: field)
     
     let context: [FieldContextKey: Any] = [
       .field: sanitized,

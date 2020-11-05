@@ -2,7 +2,7 @@ import Foundation
 import Apollo
 
 public protocol CharacterNameAndAppearsIn: GraphQLFragment, Codable {
-  var __typename: CharacterType { get }
+  var __typename: String { get }
   /// The name of the character
   var name: String { get }
   /// The movies this character appears in

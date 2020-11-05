@@ -58,7 +58,6 @@ public class FragmentGenerator {
       try fieldGenerator.run(field: $0,
                              accessor: .mutable,
                              fragmentMode: .getterOnly,
-                             parentFragment: fragment,
                              options: options)
     }
     

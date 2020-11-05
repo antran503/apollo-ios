@@ -76,7 +76,6 @@ class FieldGenerationTests: XCTestCase {
     let output = try generator.run(field: appearsInField,
                                    accessor: .mutable,
                                    fragmentMode: .getterOnly,
-                                   parentFragment: characterNameAndAppearsInFragment,
                                    options: CodegenTestHelper.dummyOptions())
     
     XCTAssertEqual(
@@ -92,27 +91,12 @@ var appearsIn: [Episode] { get }
     let output = try generator.run(field: nameField,
                                    accessor: .mutable,
                                    fragmentMode: .getterOnly,
-                                   parentFragment: characterNameAndAppearsInFragment,
                                    options: CodegenTestHelper.dummyOptions())
     
     XCTAssertEqual(
 """
 /// The name of the character
 var name: String { get }
-""", output)
-  }
-  
-  func testGeneratingUnionTypeForFragment() throws {
-    let generator = FieldGenerator()
-    let output = try generator.run(field: typenameField,
-                                   accessor: .mutable,
-                                   fragmentMode: .getterOnly,
-                                   parentFragment: characterNameAndAppearsInFragment,
-                                   options: CodegenTestHelper.dummyOptions())
-    
-    XCTAssertEqual(
-"""
-var __typename: CharacterType { get }
 """, output)
   }
 }
