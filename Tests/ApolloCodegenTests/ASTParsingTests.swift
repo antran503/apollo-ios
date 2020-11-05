@@ -32,7 +32,7 @@ class ASTParsingTests: XCTestCase {
     do {
       let output = try loadAST(from: starWarsJSONURL)
       XCTAssertEqual(output.operations.count, 37)
-      XCTAssertEqual(output.fragments.count, 15)
+      XCTAssertEqual(output.fragments.count, 16)
       XCTAssertEqual(output.typesUsed.count, 3)
       XCTAssertEqual(output.unionTypes.count, 1)
       XCTAssertEqual(output.interfaceTypes.count, 1)
