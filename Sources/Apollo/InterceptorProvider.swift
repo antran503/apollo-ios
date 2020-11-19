@@ -58,18 +58,18 @@ open class LegacyInterceptorProvider: InterceptorProvider {
     }
   }
   
-  public func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
+  open func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
     [
       MaxRetryInterceptor(),
       LegacyCacheReadInterceptor(store: self.store),
     ]
   }
   
-  public func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+  open func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
     NetworkFetchInterceptor(client: self.client)
   }
   
-  public func postNetworkInterceptors<Operation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
+  open func postNetworkInterceptors<Operation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
       return [
         ResponseCodeInterceptor(),
         LegacyParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
@@ -113,18 +113,18 @@ open class CodableInterceptorProvider<FlexDecoder: FlexibleDecoder>: Interceptor
     }
   }
   
-  public func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
+  open func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
     [
       MaxRetryInterceptor(),
       // Swift Codegen Phase 2: Add Cache Read interceptor
     ]
   }
   
-  public func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+  open func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
     NetworkFetchInterceptor(client: self.client)
   }
 
-  public func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
+  open func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
        [
          ResponseCodeInterceptor(),
          AutomaticPersistedQueryInterceptor(),
