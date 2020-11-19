@@ -150,6 +150,7 @@
 		9BC2D9D3233C6EF0007BD083 /* Basher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC2D9D1233C6DC0007BD083 /* Basher.swift */; };
 		9BC742AC24CFB2FF0029282C /* ApolloErrorInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC742AB24CFB2FF0029282C /* ApolloErrorInterceptor.swift */; };
 		9BC742AE24CFB6450029282C /* LegacyCacheWriteInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC742AD24CFB6450029282C /* LegacyCacheWriteInterceptor.swift */; };
+		9BCA2F36256619E90069AAE5 /* CustomNetworkFetchInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BCA2F35256619E90069AAE5 /* CustomNetworkFetchInterceptor.swift */; };
 		9BCF0CE023FC9CA50031D2A2 /* TestCacheProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BCF0CD923FC9CA50031D2A2 /* TestCacheProvider.swift */; };
 		9BCF0CE323FC9CA50031D2A2 /* XCTAssertHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BCF0CDC23FC9CA50031D2A2 /* XCTAssertHelpers.swift */; };
 		9BCF0CE423FC9CA50031D2A2 /* MockURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BCF0CDD23FC9CA50031D2A2 /* MockURLSession.swift */; };
@@ -667,6 +668,7 @@
 		9BC2D9D1233C6DC0007BD083 /* Basher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basher.swift; sourceTree = "<group>"; };
 		9BC742AB24CFB2FF0029282C /* ApolloErrorInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApolloErrorInterceptor.swift; sourceTree = "<group>"; };
 		9BC742AD24CFB6450029282C /* LegacyCacheWriteInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCacheWriteInterceptor.swift; sourceTree = "<group>"; };
+		9BCA2F35256619E90069AAE5 /* CustomNetworkFetchInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNetworkFetchInterceptor.swift; sourceTree = "<group>"; };
 		9BCF0CD923FC9CA50031D2A2 /* TestCacheProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCacheProvider.swift; sourceTree = "<group>"; };
 		9BCF0CDA23FC9CA50031D2A2 /* ApolloTestSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApolloTestSupport.h; sourceTree = "<group>"; };
 		9BCF0CDC23FC9CA50031D2A2 /* XCTAssertHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XCTAssertHelpers.swift; sourceTree = "<group>"; };
@@ -999,9 +1001,10 @@
 				9BC742AF24D09F880029282C /* Legacy */,
 				9B260BEA245A020300562176 /* ApolloInterceptor.swift */,
 				9BC742AB24CFB2FF0029282C /* ApolloErrorInterceptor.swift */,
-				9B260C07245A437400562176 /* InterceptorProvider.swift */,
 				9B9BBAF424DB4F890021C30F /* AutomaticPersistedQueryInterceptor.swift */,
+				9B260C07245A437400562176 /* InterceptorProvider.swift */,
 				9BEEDC2724E351E5001D1294 /* MaxRetryInterceptor.swift */,
+				9BCA2F35256619E90069AAE5 /* CustomNetworkFetchInterceptor.swift */,
 				9B260BFA245A031900562176 /* NetworkFetchInterceptor.swift */,
 				9B260BF8245A030100562176 /* ResponseCodeInterceptor.swift */,
 			);
@@ -2583,6 +2586,7 @@
 				9B260BEB245A020300562176 /* ApolloInterceptor.swift in Sources */,
 				54DDB0921EA045870009DD99 /* InMemoryNormalizedCache.swift in Sources */,
 				9FC9A9C51E2D6CE70023C4D5 /* GraphQLSelectionSet.swift in Sources */,
+				9BCA2F36256619E90069AAE5 /* CustomNetworkFetchInterceptor.swift in Sources */,
 				9B260C01245A059700562176 /* CodableParsingInterceptor.swift in Sources */,
 				9B554CC4247DC29A002F452A /* TaskData.swift in Sources */,
 				9B9BBAF524DB4F890021C30F /* AutomaticPersistedQueryInterceptor.swift in Sources */,

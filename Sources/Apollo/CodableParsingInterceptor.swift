@@ -1,17 +1,6 @@
 import Foundation
 
-public class CodableParsingInterceptor<FlexDecoder: FlexibleDecoder>: ApolloInterceptor {
-  
-  public enum CodableParsingError: Error, LocalizedError {
-    case noResponseToParse
-    
-    public var errorDescription: String? {
-      switch self {
-      case .noResponseToParse:
-        return "The Codable Parsing Interceptor was called before a response was received to be parsed. Double-check the order of your interceptors."
-      }
-    }
-  }
+public class CodableParsingInterceptor<FlexDecoder: FlexibleDecoder>: ApolloPostNetworkInterceptor {
 
   let decoder: FlexDecoder
   
@@ -21,33 +10,26 @@ public class CodableParsingInterceptor<FlexDecoder: FlexibleDecoder>: ApolloInte
     self.decoder = decoder
   }
   
-  public func interceptAsync<Operation: GraphQLOperation>(
+  public func handleResponse<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
+    response: HTTPResponse<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+
     guard !self.isCancelled else {
       return
     }
-    
-    guard let createdResponse = response else {
-      chain.handleErrorAsync(CodableParsingError.noResponseToParse,
-                             request: request,
-                             response: response,
-                             completion: completion)
-      return
-    }
-    
+
     do {
-      let parsedData = try GraphQLResult<Operation.Data>(from: createdResponse.rawData, decoder: self.decoder)
-      createdResponse.parsedResponse = parsedData
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
+      let parsedData = try GraphQLResult<Operation.Data>(from: response.rawData, decoder: self.decoder)
+      response.parsedResponse = parsedData
+      chain.proceedWithHandlingResponse(request: request,
+                                        response: response,
+                                        completion: completion)
     } catch {
       chain.handleErrorAsync(error,
                              request: request,
-                             response: createdResponse,
+                             response: response,
                              completion: completion)
     }
   }

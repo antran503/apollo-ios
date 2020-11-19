@@ -1,7 +1,7 @@
 import Foundation
 
 /// An interceptor that reads data from the legacy cache for queries, following the `HTTPRequest`'s `cachePolicy`.
-public class LegacyCacheReadInterceptor: ApolloInterceptor {
+public class LegacyCacheReadInterceptor: ApolloPreNetworkInterceptor {
     
   private let store: ApolloStore
   
@@ -12,27 +12,23 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
     self.store = store
   }
   
-  public func interceptAsync<Operation: GraphQLOperation>(
+  public func prepareRequest<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
-    
     switch request.operation.operationType {
     case .mutation,
          .subscription:
       // Mutations and subscriptions don't need to hit the cache.
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
+      chain.proceedWithPreparing(request: request,
+                                 completion: completion)
     case .query:
       switch request.cachePolicy {
       case .fetchIgnoringCacheCompletely,
            .fetchIgnoringCacheData:
         // Don't bother with the cache, just keep going
-        chain.proceedAsync(request: request,
-                           response: response,
-                           completion: completion)
+        chain.proceedWithPreparing(request: request,
+                                   completion: completion)
       case .returnCacheDataAndFetch:
         self.fetchFromCache(for: request, chain: chain) { cacheFetchResult in
           switch cacheFetchResult {
@@ -46,18 +42,16 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
           }
           
           // In either case, keep going asynchronously
-          chain.proceedAsync(request: request,
-                             response: response,
-                             completion: completion)
+          chain.proceedWithPreparing(request: request,
+                                     completion: completion)
         }
       case .returnCacheDataElseFetch:
         self.fetchFromCache(for: request, chain: chain) { cacheFetchResult in
           switch cacheFetchResult {
           case .failure:
             // Cache miss, proceed to network without returning error
-            chain.proceedAsync(request: request,
-                               response: response,
-                               completion: completion)
+            chain.proceedWithPreparing(request: request,
+                                       completion: completion)
           case .success(let graphQLResult):
             // Cache hit! We're done.
             chain.returnValueAsync(for: request,
@@ -72,7 +66,7 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
             // Cache miss - don't hit the network, just return the error.
             chain.handleErrorAsync(error,
                                    request: request,
-                                   response: response,
+                                   response: nil,
                                    completion: completion)
           case .success(let result):
             chain.returnValueAsync(for: request,

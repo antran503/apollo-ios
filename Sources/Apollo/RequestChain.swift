@@ -20,8 +20,11 @@ public class RequestChain: Cancellable {
     }
   }
   
-  private let interceptors: [ApolloInterceptor]
-  private var currentIndex: Int
+  private let preNetworkInterceptors: [ApolloPreNetworkInterceptor]
+  private let networkInterceptor: ApolloNetworkFetchInterceptor
+  private let postNetworkInterceptors: [ApolloPostNetworkInterceptor]
+  private var currentPreNetworkIndex: Int
+  private var currentPostNetworkIndex: Int
   private var callbackQueue: DispatchQueue
   private var isCancelled = Atomic<Bool>(false)
   
@@ -38,11 +41,22 @@ public class RequestChain: Cancellable {
   /// - Parameters:
   ///   - interceptors: The array of interceptors to use.
   ///   - callbackQueue: The `DispatchQueue` to call back on when an error or result occurs. Defaults to `.main`.
-  public init(interceptors: [ApolloInterceptor],
+  public init(preNetworkInterceptors: [ApolloPreNetworkInterceptor],
+              networkInterceptor: ApolloNetworkFetchInterceptor,
+              postNetworkInterceptors: [ApolloPostNetworkInterceptor],
               callbackQueue: DispatchQueue = .main) {
-    self.interceptors = interceptors
+    
+    assert(preNetworkInterceptors.apollo.isNotEmpty, "You must provide a non-empty array of pre-network interceptors")
+    self.currentPreNetworkIndex = 0
+    self.preNetworkInterceptors = preNetworkInterceptors
+    
+    self.networkInterceptor = networkInterceptor
+    
+    assert(postNetworkInterceptors.apollo.isNotEmpty, "You must provide a non-empty array of post-network interceptors")
+    self.currentPostNetworkIndex = 0
+    self.postNetworkInterceptors = postNetworkInterceptors
+    
     self.callbackQueue = callbackQueue
-    self.currentIndex = 0
   }
   
   /// Kicks off the request from the beginning of the interceptor array.
@@ -53,9 +67,9 @@ public class RequestChain: Cancellable {
   public func kickoff<Operation: GraphQLOperation>(
     request: HTTPRequest<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
-    assert(self.currentIndex == 0, "The interceptor index should be zero when calling this method")
+    assert(self.currentPreNetworkIndex == 0, "The interceptor index should be zero when calling this method")
 
-    guard let firstInterceptor = self.interceptors.first else {
+    guard let firstInterceptor = self.preNetworkInterceptors.first else {
       handleErrorAsync(ChainError.noInterceptors,
                        request: request,
                        response: nil,
@@ -63,38 +77,62 @@ public class RequestChain: Cancellable {
       return
     }
     
-    firstInterceptor.interceptAsync(chain: self,
+    firstInterceptor.prepareRequest(chain: self,
                                     request: request,
-                                    response: nil,
                                     completion: completion)
   }
-
-  /// Proceeds to the next interceptor in the array.
+  
+  /// Proceeds to the next pre-network interceptor in the array.
   ///
   /// - Parameters:
   ///   - request: The in-progress request object
-  ///   - response: [optional] The in-progress response object, if received yet
   ///   - completion: The completion closure to call when data has been processed and should be returned to the UI.
-  public func proceedAsync<Operation: GraphQLOperation>(
+  func proceedWithPreparing<Operation: GraphQLOperation>(
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+  
     guard self.isNotCancelled else {
       // Do not proceed, this chain has been cancelled.
       return
     }
     
-    let nextIndex = self.currentIndex + 1
-    if self.interceptors.indices.contains(nextIndex) {
-      self.currentIndex = nextIndex
-      let interceptor = self.interceptors[self.currentIndex]
+    let nextIndex = self.currentPreNetworkIndex + 1
+    if self.preNetworkInterceptors.indices.contains(nextIndex) {
+      self.currentPreNetworkIndex = nextIndex
+      let interceptor = self.preNetworkInterceptors[self.currentPreNetworkIndex]
       
-      interceptor.interceptAsync(chain: self,
+      interceptor.prepareRequest(chain: self,
                                  request: request,
-                                 response: response,
                                  completion: completion)
     } else {
-      if let result = response?.parsedResponse {
+      // We've gotten to the end of the pre-network interceptors, call the network interceptor
+      self.networkInterceptor.fetchFromNetwork(chain: self,
+                                               request: request,
+                                               completion: completion)
+    }
+  }
+  
+  func proceedWithHandlingResponse<Operation: GraphQLOperation>(
+    request: HTTPRequest<Operation>,
+    response: HTTPResponse<Operation>,
+    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+  
+    guard self.isNotCancelled else {
+      // Do not proceed, this chain has been cancelled.
+      return
+    }
+  
+  let nextIndex = self.currentPostNetworkIndex + 1
+  if self.postNetworkInterceptors.indices.contains(nextIndex) {
+    self.currentPostNetworkIndex = nextIndex
+    let interceptor = self.postNetworkInterceptors[self.currentPostNetworkIndex]
+    
+    interceptor.handleResponse(chain: self,
+                               request: request,
+                               response: response,
+                               completion: completion)
+  } else {
+      if let result = response.parsedResponse {
         // We got to the end of the chain with a parsed response. Yay! Return it.
         self.returnValueAsync(for: request,
                               value: result,
@@ -109,15 +147,16 @@ public class RequestChain: Cancellable {
     }
   }
   
-  /// Cancels the entire chain of interceptors.
+  /// Cancels the entire chain of interceptors, along with any interceptors that conform to `Cancellable`
   public func cancel() {
     self.isCancelled.mutate { $0 = true }
     
-    // If an interceptor adheres to `Cancellable`, it should have its in-flight work cancelled as well.
-    for interceptor in self.interceptors {
-      if let cancellableInterceptor = interceptor as? Cancellable {
-        cancellableInterceptor.cancel()
-      }
+    var cancellables = self.preNetworkInterceptors.compactMap { $0 as? Cancellable }
+    cancellables.append(contentsOf: self.postNetworkInterceptors.compactMap { $0 as? Cancellable })
+    cancellables.append(self.networkInterceptor)
+    
+    for cancellable in cancellables {
+      cancellable.cancel()
     }
   }
   
@@ -135,7 +174,8 @@ public class RequestChain: Cancellable {
       return
     }
     
-    self.currentIndex = 0
+    self.currentPreNetworkIndex = 0
+    self.currentPostNetworkIndex = 0
     self.kickoff(request: request, completion: completion)
   }
   

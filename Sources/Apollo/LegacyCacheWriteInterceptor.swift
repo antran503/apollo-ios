@@ -1,7 +1,7 @@
 import Foundation
 
 /// An interceptor which writes data to the legacy cache, following the `HTTPRequest`'s `cachePolicy`.
-public class LegacyCacheWriteInterceptor: ApolloInterceptor {
+public class LegacyCacheWriteInterceptor: ApolloPostNetworkInterceptor {
   
   public enum LegacyCacheWriteError: Error, LocalizedError {
     case noResponseToParse
@@ -23,28 +23,26 @@ public class LegacyCacheWriteInterceptor: ApolloInterceptor {
     self.store = store
   }
   
-  public func interceptAsync<Operation: GraphQLOperation>(
+  public func handleResponse<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
+    response: HTTPResponse<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
     
     guard request.cachePolicy != .fetchIgnoringCacheCompletely else {
       // If we're ignoring the cache completely, we're not writing to it.
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
+      chain.proceedWithHandlingResponse(request: request,
+                                        response: response,
+                                        completion: completion)
       return
     }
     
-    guard
-      let createdResponse = response,
-      let legacyResponse = createdResponse.legacyResponse else {
-        chain.handleErrorAsync(LegacyCacheWriteError.noResponseToParse,
+    guard let legacyResponse = response.legacyResponse else {
+      chain.handleErrorAsync(LegacyCacheWriteError.noResponseToParse,
                              request: request,
                              response: response,
                              completion: completion)
-        return
+      return
     }
     
     do {
@@ -59,9 +57,9 @@ public class LegacyCacheWriteInterceptor: ApolloInterceptor {
       }
       
       chain.proceedAsync(request: request,
-                         response: createdResponse,
+                         response: response,
                          completion: completion)
-    } catch {
+    }.catch { error in
       chain.handleErrorAsync(error,
                              request: request,
                              response: response,

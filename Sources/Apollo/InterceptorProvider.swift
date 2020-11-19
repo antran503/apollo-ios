@@ -8,7 +8,11 @@ public protocol InterceptorProvider {
   /// Creates a new array of interceptors when called
   ///
   /// - Parameter operation: The operation to provide interceptors for
-  func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor]
+  func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor]
+  
+  func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor
+
+  func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor]
   
   /// Provides an additional error interceptor for any additional handling of errors
   /// before returning to the UI, such as logging.
@@ -54,11 +58,19 @@ open class LegacyInterceptorProvider: InterceptorProvider {
     }
   }
   
-  open func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+  public func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
+    [
+      MaxRetryInterceptor(),
+      LegacyCacheReadInterceptor(store: self.store),
+    ]
+  }
+  
+  public func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+    NetworkFetchInterceptor(client: self.client)
+  }
+  
+  public func postNetworkInterceptors<Operation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
       return [
-        MaxRetryInterceptor(),
-        LegacyCacheReadInterceptor(store: self.store),
-        NetworkFetchInterceptor(client: self.client),
         ResponseCodeInterceptor(),
         LegacyParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
         AutomaticPersistedQueryInterceptor(),
@@ -100,12 +112,20 @@ open class CodableInterceptorProvider<FlexDecoder: FlexibleDecoder>: Interceptor
       self.client.invalidate()
     }
   }
+  
+  public func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
+    [
+      MaxRetryInterceptor(),
+      // Swift Codegen Phase 2: Add Cache Read interceptor
+    ]
+  }
+  
+  public func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+    NetworkFetchInterceptor(client: self.client)
+  }
 
-  open func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
-       return [
-         MaxRetryInterceptor(),
-         // Swift Codegen Phase 2: Add Cache Read interceptor
-         NetworkFetchInterceptor(client: self.client),
+  public func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
+       [
          ResponseCodeInterceptor(),
          AutomaticPersistedQueryInterceptor(),
          CodableParsingInterceptor(decoder: self.decoder),

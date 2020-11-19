@@ -1,7 +1,7 @@
 import Foundation
 
 /// An interceptor to check the response code returned with a request.
-public class ResponseCodeInterceptor: ApolloInterceptor {
+public class ResponseCodeInterceptor: ApolloPostNetworkInterceptor {
   
   public enum ResponseCodeError: Error, LocalizedError {
     case invalidResponseCode(response: HTTPURLResponse?, rawData: Data?)
@@ -33,17 +33,15 @@ public class ResponseCodeInterceptor: ApolloInterceptor {
   /// Designated initializer
   public init() {}
   
-  public func interceptAsync<Operation: GraphQLOperation>(
+  public func handleResponse<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
+    response: HTTPResponse<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
     
-    
-    guard response?.httpResponse.apollo.isSuccessful == true else {
-      let error = ResponseCodeError.invalidResponseCode(response: response?.httpResponse,
-                                                        
-                                                        rawData: response?.rawData)
+    guard response.httpResponse.apollo.isSuccessful else {
+      let error = ResponseCodeError.invalidResponseCode(response: response.httpResponse,
+                                                        rawData: response.rawData)
       
       chain.handleErrorAsync(error,
                              request: request,
@@ -52,8 +50,8 @@ public class ResponseCodeInterceptor: ApolloInterceptor {
       return
     }
     
-    chain.proceedAsync(request: request,
-                       response: response,
-                       completion: completion)
+    chain.proceedWithHandlingResponse(request: request,
+                                      response: response,
+                                      completion: completion)
   }
 }

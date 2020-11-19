@@ -1,6 +1,6 @@
 import Foundation
 
-public class AutomaticPersistedQueryInterceptor: ApolloInterceptor {
+public class AutomaticPersistedQueryInterceptor: ApolloPostNetworkInterceptor {
   
   public enum APQError: LocalizedError {
     case noParsedResponse
@@ -19,23 +19,23 @@ public class AutomaticPersistedQueryInterceptor: ApolloInterceptor {
   /// Designated initializer
   public init() {}
   
-  public func interceptAsync<Operation: GraphQLOperation>(
+  public func handleResponse<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
+    response: HTTPResponse<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
     
     guard
       let jsonRequest = request as? JSONRequest,
       jsonRequest.autoPersistQueries else {
         // Not a request that handles APQs, continue along
-        chain.proceedAsync(request: request,
-                           response: response,
-                           completion: completion)
+        chain.proceedWithHandlingResponse(request: request,
+                                          response: response,
+                                          completion: completion)
         return
     }
     
-    guard let result = response?.parsedResponse else {
+    guard let result = response.parsedResponse else {
       // This is in the wrong order - this needs to be parsed before we can check it.
       chain.handleErrorAsync(APQError.noParsedResponse,
                              request: request,
@@ -46,18 +46,18 @@ public class AutomaticPersistedQueryInterceptor: ApolloInterceptor {
     
     guard let errors = result.errors else {
       // No errors were returned so no retry is necessary, continue along.
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
+      chain.proceedWithHandlingResponse(request: request,
+                                        response: response,
+                                        completion: completion)
       return
     }
     
     let errorMessages = errors.compactMap { $0.message }
     guard errorMessages.contains("PersistedQueryNotFound") else {
       // The errors were not APQ errors, continue along.
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
+      chain.proceedWithHandlingResponse(request: request,
+                                        response: response,
+                                        completion: completion)
       return
     }
     

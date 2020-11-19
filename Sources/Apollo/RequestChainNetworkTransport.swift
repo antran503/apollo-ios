@@ -88,9 +88,12 @@ open class RequestChainNetworkTransport: NetworkTransport {
     contextIdentifier: UUID? = nil,
     callbackQueue: DispatchQueue = .main,
     completionHandler: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) -> Cancellable {
-    
-    let interceptors = self.interceptorProvider.interceptors(for: operation)
-    let chain = RequestChain(interceptors: interceptors, callbackQueue: callbackQueue)
+  
+    let chain = RequestChain(preNetworkInterceptors: self.interceptorProvider.preNetworkInterceptors(for: operation),
+                             networkInterceptor: self.interceptorProvider.networkInterceptor(for: operation),
+                             postNetworkInterceptors: self.interceptorProvider.postNetworkInterceptors(for: operation),
+                             callbackQueue: callbackQueue)
+      
     chain.additionalErrorHandler = self.interceptorProvider.additionalErrorInterceptor(for: operation)
     let request = self.constructRequest(for: operation,
                                         cachePolicy: cachePolicy,
@@ -130,9 +133,10 @@ extension RequestChainNetworkTransport: UploadingNetworkTransport {
     completionHandler: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) -> Cancellable {
     
     let request = self.constructUploadRequest(for: operation, with: files)
-    let interceptors = self.interceptorProvider.interceptors(for: operation)
-    let chain = RequestChain(interceptors: interceptors, callbackQueue: callbackQueue)
-    
+    let chain = RequestChain(preNetworkInterceptors: self.interceptorProvider.preNetworkInterceptors(for: operation),
+                             networkInterceptor: self.interceptorProvider.networkInterceptor(for: operation),
+                             postNetworkInterceptors: self.interceptorProvider.postNetworkInterceptors(for: operation),
+                             callbackQueue: callbackQueue)
     chain.kickoff(request: request, completion: completionHandler)
     return chain
   }

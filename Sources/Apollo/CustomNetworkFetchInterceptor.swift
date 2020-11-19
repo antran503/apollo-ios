@@ -1,18 +1,23 @@
 import Foundation
-#if !COCOAPODS
-import ApolloCore
-#endif
 
-/// An interceptor which actually fetches data from the network.
-public class NetworkFetchInterceptor: ApolloNetworkFetchInterceptor {
-  let client: URLSessionClient
-  private var currentTask: Atomic<URLSessionTask?> = Atomic(nil)
+/// Protocol to allow non-`URLSessionClient` network clients to easily execute requests.
+public protocol NetworkRequester {
   
-  /// Designated initializer.
+  /// Takes a created `URLRequest` and executes it using a custom fetcher.
   ///
-  /// - Parameter client: The `URLSessionClient` to use to fetch data
-  public init(client: URLSessionClient) {
-    self.client = client
+  /// - Parameters:
+  ///   - request: The request to execute.
+  ///   - completion: The completion closure to execute when the request is complete. On success, should return a tuple of non-nil `Data` (nil `Data` would be an error) and an `HTTPURLResponse`.
+  func executeRequest(_ request: URLRequest, completion: @escaping  (Result<(Data, HTTPURLResponse), Error>) -> Void) -> Cancellable?
+}
+
+public class CustomNetworkFetchInterceptor: ApolloNetworkFetchInterceptor {
+  
+  let requester: NetworkRequester
+  var currentTask: Cancellable?
+  
+  public init(requester: NetworkRequester) {
+    self.requester = requester
   }
   
   public func fetchFromNetwork<Operation: GraphQLOperation>(
@@ -31,13 +36,13 @@ public class NetworkFetchInterceptor: ApolloNetworkFetchInterceptor {
       return
     }
     
-    let task = self.client.sendRequest(urlRequest) { [weak self] result in
+    self.currentTask = self.requester.executeRequest(urlRequest) { [weak self] result in
       guard let self = self else {
         return
       }
       
       defer {
-        self.currentTask.mutate { $0 = nil }
+        self.currentTask = nil
       }
       
       guard chain.isNotCancelled else {
@@ -59,15 +64,9 @@ public class NetworkFetchInterceptor: ApolloNetworkFetchInterceptor {
                                           completion: completion)
       }
     }
-    
-    self.currentTask.mutate { $0 = task }
   }
   
   public func cancel() {
-    guard let task = self.currentTask.value else {
-      return
-    }
-    
-    task.cancel()
+    self.currentTask?.cancel()
   }
 }
