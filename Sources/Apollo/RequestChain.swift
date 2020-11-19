@@ -8,12 +8,12 @@ public class RequestChain: Cancellable {
   
   public enum ChainError: Error, LocalizedError {
     case invalidIndex(chain: RequestChain, index: Int)
-    case noInterceptors
+    case noPostNetworkInterceptors
     
     public var errorDescription: String? {
       switch self {
-      case .noInterceptors:
-        return "No interceptors were provided to this chain. This is a developer error."
+      case .noPostNetworkInterceptors:
+        return "No pre-network interceptors were provided to this chain. This is a developer error."
       case .invalidIndex(_, let index):
         return "`proceedAsync` was called for index \(index), which is out of bounds of the receiver for this chain. Double-check the order of your interceptors."
       }
@@ -46,13 +46,11 @@ public class RequestChain: Cancellable {
               postNetworkInterceptors: [ApolloPostNetworkInterceptor],
               callbackQueue: DispatchQueue = .main) {
     
-    assert(preNetworkInterceptors.apollo.isNotEmpty, "You must provide a non-empty array of pre-network interceptors")
     self.currentPreNetworkIndex = 0
     self.preNetworkInterceptors = preNetworkInterceptors
     
     self.networkInterceptor = networkInterceptor
     
-    assert(postNetworkInterceptors.apollo.isNotEmpty, "You must provide a non-empty array of post-network interceptors")
     self.currentPostNetworkIndex = 0
     self.postNetworkInterceptors = postNetworkInterceptors
     
@@ -67,13 +65,22 @@ public class RequestChain: Cancellable {
   public func kickoff<Operation: GraphQLOperation>(
     request: HTTPRequest<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
-    assert(self.currentPreNetworkIndex == 0, "The interceptor index should be zero when calling this method")
-
-    guard let firstInterceptor = self.preNetworkInterceptors.first else {
-      handleErrorAsync(ChainError.noInterceptors,
+    assert(self.currentPreNetworkIndex == 0, "The pre-network interceptor index should be zero when calling this method")
+    
+    guard self.postNetworkInterceptors.apollo.isNotEmpty else {
+      // There definitely need to be post-network interceptors to do some kind of parsing.
+      handleErrorAsync(ChainError.noPostNetworkInterceptors,
                        request: request,
                        response: nil,
                        completion: completion)
+      return
+    }
+
+    guard let firstInterceptor = self.preNetworkInterceptors.first else {
+      // There aren't any pre-network interceptors, go directly to fetching from the network.
+      self.networkInterceptor.fetchFromNetwork(chain: self,
+                                               request: request,
+                                               completion: completion)
       return
     }
     
@@ -87,7 +94,7 @@ public class RequestChain: Cancellable {
   /// - Parameters:
   ///   - request: The in-progress request object
   ///   - completion: The completion closure to call when data has been processed and should be returned to the UI.
-  func proceedWithPreparing<Operation: GraphQLOperation>(
+  public func proceedWithPreparing<Operation: GraphQLOperation>(
     request: HTTPRequest<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
   
@@ -150,17 +157,17 @@ public class RequestChain: Cancellable {
       // Do not proceed, this chain has been cancelled.
       return
     }
-  
-  let nextIndex = self.currentPostNetworkIndex + 1
-  if self.postNetworkInterceptors.indices.contains(nextIndex) {
-    self.currentPostNetworkIndex = nextIndex
-    let interceptor = self.postNetworkInterceptors[self.currentPostNetworkIndex]
     
-    interceptor.handleResponse(chain: self,
-                               request: request,
-                               response: response,
-                               completion: completion)
-  } else {
+    let nextIndex = self.currentPostNetworkIndex + 1
+    if self.postNetworkInterceptors.indices.contains(nextIndex) {
+      self.currentPostNetworkIndex = nextIndex
+      let interceptor = self.postNetworkInterceptors[self.currentPostNetworkIndex]
+      
+      interceptor.handleResponse(chain: self,
+                                 request: request,
+                                 response: response,
+                                 completion: completion)
+    } else {
       if let result = response.parsedResponse {
         // We got to the end of the chain with a parsed response. Yay! Return it.
         self.returnValueAsync(for: request,
