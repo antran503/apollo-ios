@@ -17,13 +17,24 @@ class InterceptorTests: XCTestCase {
   
   func testMaxRetryInterceptorErrorsAfterMaximumRetries() {
     class TestProvider: InterceptorProvider {
+
       let testInterceptor = BlindRetryingTestInterceptor()
       let retryCount = 15
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+      
+      func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
         [
           MaxRetryInterceptor(maxRetriesAllowed: self.retryCount),
           self.testInterceptor,
-          NetworkFetchInterceptor(client: MockURLSessionClient()),
+        ]
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: MockURLSessionClient())
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
+        [
+          ResponseCodeInterceptor()
         ]
       }
     }
@@ -83,12 +94,20 @@ class InterceptorTests: XCTestCase {
         return client
       }()
       
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+      func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
         [
           MaxRetryInterceptor(maxRetriesAllowed: self.retryCount),
           self.testInterceptor,
-          NetworkFetchInterceptor(client: self.mockClient),
-          LegacyParsingInterceptor(),
+        ]
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: self.mockClient)
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
+        [
+          LegacyParsingInterceptor()
         ]
       }
     }
@@ -121,6 +140,8 @@ class InterceptorTests: XCTestCase {
   
   func testLegacyParsingInterceptorFailsWithEmptyData() {
     class TestProvider: InterceptorProvider {
+
+      
       let mockClient: MockURLSessionClient = {
         let client = MockURLSessionClient()
         client.response = HTTPURLResponse(url: TestURL.mockServer.url,
@@ -131,10 +152,17 @@ class InterceptorTests: XCTestCase {
         return client
       }()
       
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+      func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
+        []
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: self.mockClient)
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
         [
-          NetworkFetchInterceptor(client: self.mockClient),
-          LegacyParsingInterceptor(),
+          LegacyParsingInterceptor()
         ]
       }
     }
@@ -179,9 +207,16 @@ class InterceptorTests: XCTestCase {
         return client
       }()
       
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+      func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
+        []
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: self.mockClient)
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
         [
-          NetworkFetchInterceptor(client: self.mockClient),
           ResponseCodeInterceptor(),
           LegacyParsingInterceptor()
         ]
@@ -235,15 +270,22 @@ class InterceptorTests: XCTestCase {
         return client
       }()
       
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+      func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
+        []
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: self.mockClient)
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
         [
-          NetworkFetchInterceptor(client: self.mockClient),
           ResponseCodeInterceptor(),
-          LegacyParsingInterceptor(),
+          LegacyParsingInterceptor()
         ]
       }
     }
-
+      
     let network = RequestChainNetworkTransport(interceptorProvider: TestProvider(),
                                                endpointURL: TestURL.mockServer.url)
     

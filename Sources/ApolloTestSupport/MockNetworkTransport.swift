@@ -6,20 +6,17 @@ public final class MockNetworkTransport: RequestChainNetworkTransport {
                endpointURL: TestURL.mockServer.url)
   }
   
-  struct TestInterceptorProvider: InterceptorProvider {
-    let store: ApolloStore
+  class TestInterceptorProvider: LegacyInterceptorProvider {
     let server: MockGraphQLServer
     
-    func interceptors<Operation>(for operation: Operation) -> [ApolloInterceptor] where Operation: GraphQLOperation {
-      return [
-        MaxRetryInterceptor(),
-        LegacyCacheReadInterceptor(store: self.store),
-        MockGraphQLServerInterceptor(server: server),
-        ResponseCodeInterceptor(),
-        LegacyParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
-        AutomaticPersistedQueryInterceptor(),
-        LegacyCacheWriteInterceptor(store: self.store),
-      ]
+    init(store: ApolloStore,
+         server: MockGraphQLServer) {
+      self.server = server
+      super.init(store: store)
+    }
+    
+    override func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+      MockGraphQLServerInterceptor(server: server)
     }
   }
 }
@@ -30,15 +27,20 @@ private final class MockTask: Cancellable {
   }
 }
 
-private class MockGraphQLServerInterceptor: ApolloInterceptor {
+private class MockGraphQLServerInterceptor: ApolloNetworkFetchInterceptor {
+  
   let server: MockGraphQLServer
   
   init(server: MockGraphQLServer) {
     self.server = server
   }
   
-  public func interceptAsync<Operation>(chain: RequestChain, request: HTTPRequest<Operation>, response: HTTPResponse<Operation>?, completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) where Operation: GraphQLOperation {
-    server.serve(request: request) { result in
+  func fetchFromNetwork<Operation: GraphQLOperation>(
+    chain: RequestChain,
+    request: HTTPRequest<Operation>,
+    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    
+    self.server.serve(request: request) { result in
       let httpResponse = HTTPURLResponse(url: TestURL.mockServer.url,
                                          statusCode: 200,
                                          httpVersion: nil,
@@ -48,17 +50,18 @@ private class MockGraphQLServerInterceptor: ApolloInterceptor {
       case .failure(let error):
         chain.handleErrorAsync(error,
                                request: request,
-                               response: response,
+                               response: nil,
                                completion: completion)
       case .success(let body):
         let data = try! JSONSerializationFormat.serialize(value: body)
-        let response = HTTPResponse<Operation>(response: httpResponse,
-                                               rawData: data,
-                                               parsedResponse: nil)
-        chain.proceedAsync(request: request,
-                           response: response,
-                           completion: completion)
+        chain.handleRawNetworkResponse(request: request,
+                                       rawResponse: .success((data, httpResponse)),
+                                       completion: completion)
       }
     }
+  }
+  
+  func cancel() {
+    // no-op, required protocol conformance
   }
 }

@@ -9,16 +9,17 @@
 import Foundation
 import Apollo
 
-// An interceptor which blindly retries every time it receives a request. 
-class BlindRetryingTestInterceptor: ApolloInterceptor {
+// A pre-network interceptor which blindly retries every time it receives a request. 
+class BlindRetryingTestInterceptor: ApolloPreNetworkInterceptor {
+
   var hitCount = 0
   private(set) var hasBeenCancelled = false
 
-  func interceptAsync<Operation: GraphQLOperation>(
+  func prepareRequest<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+
     self.hitCount += 1
     chain.retry(request: request,
                 completion: completion)

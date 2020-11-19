@@ -9,13 +9,13 @@
 import Foundation
 import Apollo
 
-class CancellationHandlingInterceptor: ApolloInterceptor, Cancellable {
+class CancellationHandlingInterceptor: ApolloPreNetworkInterceptor, Cancellable {
   private(set) var hasBeenCancelled = false
   
-  func interceptAsync<Operation: GraphQLOperation>(
+  
+  func prepareRequest<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
     
     guard !self.hasBeenCancelled else {
@@ -23,9 +23,8 @@ class CancellationHandlingInterceptor: ApolloInterceptor, Cancellable {
     }
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
+      chain.proceedWithPreparing(request: request,
+                                 completion: completion)
     }
   }
   

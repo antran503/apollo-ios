@@ -71,10 +71,17 @@ class RequestChainTests: XCTestCase {
     
     self.wait(for: [secondLoadExpectation], timeout: 10)
   }
-  
-  func testEmptyInterceptorArrayReturnsCorrectError() {
-    class TestProvider: InterceptorProvider {
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+  func testEmptyPostNetworkInterceptorArrayReturnsCorrectError() {
+    struct TestProvider: InterceptorProvider {
+      func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor]  {
+        []
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: MockURLSessionClient())
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
         []
       }
     }
@@ -92,15 +99,14 @@ class RequestChainTests: XCTestCase {
         XCTFail("This should not have succeeded")
       case .failure(let error):
         switch error {
-        case RequestChain.ChainError.noInterceptors:
+        case RequestChain.ChainError.noPostNetworkInterceptors:
           // This is what we want.
           break
         default:
-          XCTFail("Incorrect error for no interceptors: \(error)")
+          XCTFail("Incorrect error for no post-network interceptors: \(error)")
         }
       }
     }
-    
     
     self.wait(for: [expectation], timeout: 1)
   }
@@ -109,11 +115,21 @@ class RequestChainTests: XCTestCase {
     class TestProvider: InterceptorProvider {
       let cancellationInterceptor = CancellationHandlingInterceptor()
       let retryInterceptor = BlindRetryingTestInterceptor()
-
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+      
+      func preNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] {
         [
           self.cancellationInterceptor,
           self.retryInterceptor
+        ]
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: MockURLSessionClient())
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
+        [
+          ResponseCodeInterceptor()
         ]
       }
     }
@@ -151,14 +167,24 @@ class RequestChainTests: XCTestCase {
     }
     
     class TestProvider: InterceptorProvider {
+
       let errorInterceptor = ErrorInterceptor()
-      func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
-        return [
-          // An interceptor which will error without a response
+      
+      func preNetworkInterceptors<Operation>(for operation: Operation) -> [ApolloPreNetworkInterceptor] where Operation : GraphQLOperation {
+        []
+      }
+      
+      func networkInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloNetworkFetchInterceptor {
+        NetworkFetchInterceptor(client: URLSessionClient())
+      }
+      
+      func postNetworkInterceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
+        [
+          // An interceptor which will error without a parsed response
           AutomaticPersistedQueryInterceptor()
         ]
       }
-      
+
       func additionalErrorInterceptor<Operation: GraphQLOperation>(for operation: Operation) -> ApolloErrorInterceptor? {
         return self.errorInterceptor
       }
@@ -166,7 +192,7 @@ class RequestChainTests: XCTestCase {
 
     let provider = TestProvider()
     let transport = RequestChainNetworkTransport(interceptorProvider: provider,
-                                                 endpointURL: TestURL.mockServer.url,
+                                                 endpointURL: TestURL.starWarsServer.url,
                                                  autoPersistQueries: true)
     
     let expectation = self.expectation(description: "Hero name query complete")
@@ -223,7 +249,7 @@ class RequestChainTests: XCTestCase {
     class TestProvider: LegacyInterceptorProvider {
       let errorInterceptor = ErrorInterceptor()
       
-      override func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
+      override func postNetworkInterceptors<Operation>(for operation: Operation) -> [ApolloPostNetworkInterceptor] {
         return [
           // An interceptor which will error without a response
           AutomaticPersistedQueryInterceptor()
@@ -237,7 +263,7 @@ class RequestChainTests: XCTestCase {
 
     let provider = TestProvider(store: ApolloStore())
     let transport = RequestChainNetworkTransport(interceptorProvider: provider,
-                                                 endpointURL: TestURL.mockServer.url,
+                                                 endpointURL: TestURL.starWarsServer.url,
                                                  autoPersistQueries: true)
     
     let expectation = self.expectation(description: "Hero name query complete")

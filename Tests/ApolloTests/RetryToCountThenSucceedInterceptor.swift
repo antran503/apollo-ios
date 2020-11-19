@@ -9,7 +9,7 @@
 import Foundation
 import Apollo
 
-class RetryToCountThenSucceedInterceptor: ApolloInterceptor {
+class RetryToCountThenSucceedInterceptor: ApolloPreNetworkInterceptor {
   let timesToCallRetry: Int
   var timesRetryHasBeenCalled = 0
   
@@ -17,19 +17,18 @@ class RetryToCountThenSucceedInterceptor: ApolloInterceptor {
     self.timesToCallRetry = timesToCallRetry
   }
   
-  func interceptAsync<Operation: GraphQLOperation>(
+  func prepareRequest<Operation: GraphQLOperation>(
     chain: RequestChain,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    
     if self.timesRetryHasBeenCalled < self.timesToCallRetry {
       self.timesRetryHasBeenCalled += 1
       chain.retry(request: request,
                   completion: completion)
     } else {
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
+      chain.proceedWithPreparing(request: request,
+                                 completion: completion)
     }
   }
 }
