@@ -45,24 +45,9 @@ public class CustomNetworkFetchInterceptor: ApolloNetworkFetchInterceptor {
         self.currentTask = nil
       }
       
-      guard chain.isNotCancelled else {
-        return
-      }
-      
-      switch result {
-      case .failure(let error):
-        chain.handleErrorAsync(error,
-                               request: request,
-                               response: nil,
-                               completion: completion)
-      case .success(let (data, httpResponse)):
-        let response = HTTPResponse<Operation>(response: httpResponse,
-                                               rawData: data,
-                                               parsedResponse: nil)
-        chain.proceedWithHandlingResponse(request: request,
-                                          response: response,
-                                          completion: completion)
-      }
+      chain.handleRawNetworkResponse(request: request,
+                                     rawResponse: result,
+                                     completion: completion)
     }
   }
   

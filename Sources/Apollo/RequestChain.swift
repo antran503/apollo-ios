@@ -112,7 +112,36 @@ public class RequestChain: Cancellable {
     }
   }
   
-  func proceedWithHandlingResponse<Operation: GraphQLOperation>(
+  public func handleRawNetworkResponse<Operation: GraphQLOperation>(request: HTTPRequest<Operation>,
+                                                                    rawResponse: Result<(Data, HTTPURLResponse), Error>,
+                                                                    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    guard self.isNotCancelled else {
+      // Do not proceed, this chain has been cancelled.
+      return
+    }
+    
+    switch rawResponse {
+    case .failure(let error):
+      self.handleErrorAsync(error,
+                            request: request,
+                            response: nil,
+                            completion: completion)
+    case .success(let (data, httpResponse)):
+      let response = HTTPResponse<Operation>(response: httpResponse,
+                                             rawData: data,
+                                             parsedResponse: nil)
+      
+      /// This force unwrap shouldn't die because we're validating that there's at least one interceptor in `kickoff`.
+      let firstPostInterceptor = self.postNetworkInterceptors.first!
+      
+      firstPostInterceptor.handleResponse(chain: self,
+                                          request: request,
+                                          response: response,
+                                          completion: completion)
+    }
+  }
+  
+  public func proceedWithHandlingResponse<Operation: GraphQLOperation>(
     request: HTTPRequest<Operation>,
     response: HTTPResponse<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
