@@ -3,22 +3,25 @@ import Foundation
 import ApolloCore
 #endif
 
-/// A chain that allows a single network request to be created and executed.
-public class RequestChain: Cancellable {
+public enum RequestChainError: Error, LocalizedError {
+  case invalidIndex(index: Int)
+  case noInterceptors
+  case chainEndedWithoutParsedResponse
   
-  public enum ChainError: Error, LocalizedError {
-    case invalidIndex(chain: RequestChain, index: Int)
-    case noInterceptors
-    
-    public var errorDescription: String? {
-      switch self {
-      case .noInterceptors:
-        return "No interceptors were provided to this chain. This is a developer error."
-      case .invalidIndex(_, let index):
-        return "`proceedAsync` was called for index \(index), which is out of bounds of the receiver for this chain. Double-check the order of your interceptors."
-      }
+  public var errorDescription: String? {
+    switch self {
+    case .noInterceptors:
+      return "No interceptors were provided to this chain. This is a developer error."
+    case .invalidIndex(let index):
+      return "`proceedAsync` was called for index \(index), which is out of bounds of the receiver for this chain. Double-check the order of your interceptors."
+    case .chainEndedWithoutParsedResponse:
+      return "The chain ended without having parsed the response - this is a developer error."
     }
   }
+}
+
+/// A chain that allows a single network request to be created and executed.
+public class RequestChain<Operation: GraphQLOperation>: Cancellable {
   
   private let interceptors: [ApolloInterceptor]
   private var currentIndex: Int
@@ -32,6 +35,8 @@ public class RequestChain: Cancellable {
   
   /// Something which allows additional error handling to occur when some kind of error has happened.
   public var additionalErrorHandler: ApolloErrorInterceptor?
+  
+  private var completion: ((Result<GraphQLResult<Operation.Data>, Error>) -> Void)?
   
   /// Creates a chain with the given interceptor array.
   ///
@@ -50,23 +55,42 @@ public class RequestChain: Cancellable {
   /// - Parameters:
   ///   - request: The request to send.
   ///   - completion: The completion closure to call when the request has completed.
-  public func kickoff<Operation: GraphQLOperation>(
+  public func kickoff(
     request: HTTPRequest<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
     assert(self.currentIndex == 0, "The interceptor index should be zero when calling this method")
 
+    self.completion = completion
+
     guard let firstInterceptor = self.interceptors.first else {
-      handleErrorAsync(ChainError.noInterceptors,
+      handleErrorAsync(RequestChainError.noInterceptors,
                        request: request,
-                       response: nil,
-                       completion: completion)
+                       response: nil)
       return
     }
-    
+        
     firstInterceptor.interceptAsync(chain: self,
                                     request: request,
-                                    response: nil,
-                                    completion: completion)
+                                    completion: { [weak self] response in
+                                      print("Intercept completed")
+                                      guard let self = self else {
+                                        return
+                                      }
+                                      
+                                      guard self.isNotCancelled else {
+                                        return
+                                      }
+                                      
+                                      if let result = response.parsedResponse {
+                                        self.returnValueAsync(for: request,
+                                                              value: result)
+                                      } else {
+                                        let error = RequestChainError.chainEndedWithoutParsedResponse
+                                        self.handleErrorAsync(error,
+                                                              request: request,
+                                                              response: response)
+                                      }
+                                    })
   }
 
   /// Proceeds to the next interceptor in the array.
@@ -75,10 +99,10 @@ public class RequestChain: Cancellable {
   ///   - request: The in-progress request object
   ///   - response: [optional] The in-progress response object, if received yet
   ///   - completion: The completion closure to call when data has been processed and should be returned to the UI.
-  public func proceedAsync<Operation: GraphQLOperation>(
+  public func proceedAsync(
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    completion: @escaping (HTTPResponse<Operation>) -> Void) {
+    
     guard self.isNotCancelled else {
       // Do not proceed, this chain has been cancelled.
       return
@@ -91,21 +115,12 @@ public class RequestChain: Cancellable {
       
       interceptor.interceptAsync(chain: self,
                                  request: request,
-                                 response: response,
                                  completion: completion)
     } else {
-      if let result = response?.parsedResponse {
-        // We got to the end of the chain with a parsed response. Yay! Return it.
-        self.returnValueAsync(for: request,
-                              value: result,
-                              completion: completion)
-      } else {
-        // We got to the end of the chain and no parsed response is there, there needs to be more processing.
-        self.handleErrorAsync(ChainError.invalidIndex(chain: self, index: nextIndex),
-                              request: request,
-                              response: response,
-                              completion: completion)
-      }
+      // We got to the end of the chain completion was never called, there needs to be more processing.
+      self.handleErrorAsync(RequestChainError.invalidIndex(index: nextIndex),
+                            request: request,
+                            response: nil)
     }
   }
   
@@ -125,18 +140,14 @@ public class RequestChain: Cancellable {
   ///
   /// - Parameters:
   ///   - request: The request to retry
-  ///   - completion: The completion closure to call when the request has completed.
-  public func retry<Operation: GraphQLOperation>(
-    request: HTTPRequest<Operation>,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
-    
+  public func retry(request: HTTPRequest<Operation>) {
     guard self.isNotCancelled else {
       // Don't retry something that's been cancelled.
       return
     }
     
     self.currentIndex = 0
-    self.kickoff(request: request, completion: completion)
+    self.kickoff(request: request, completion: self.completion!)
   }
   
   /// Handles the error by returning it on the appropriate queue, or by applying an additional error interceptor if one has been provided.
@@ -145,25 +156,30 @@ public class RequestChain: Cancellable {
   ///   - error: The error to handle
   ///   - request: The request, as far as it has been constructed.
   ///   - response: The response, as far as it has been constructed.
-  ///   - completion: The completion closure to call when work is complete.
-  public func handleErrorAsync<Operation: GraphQLOperation>(
+  public func handleErrorAsync(
     _ error: Error,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    response: HTTPResponse<Operation>?) {
     guard self.isNotCancelled else {
       return
     }
 
+    // Pull out references so we don't care if `self` gets killed off here.
+    let callbackQueue = self.callbackQueue
+    guard let completion = self.completion else {
+      return
+    }
+      
+    
     guard let additionalHandler = self.additionalErrorHandler else {
-      self.callbackQueue.async {
+      callbackQueue.async {
         completion(.failure(error))
       }
       return
     }
 
-    additionalHandler.handleErrorAsync(error: error, chain: self, request: request, response: response) { [weak self] result in
-      self?.callbackQueue.async {
+    additionalHandler.handleErrorAsync(error: error, chain: self, request: request, response: response) { result in
+      callbackQueue.async {
         completion(result)
       }
     }
@@ -175,12 +191,15 @@ public class RequestChain: Cancellable {
   ///   - request: The request, as far as it has been constructed.
   ///   - value: The value to be returned
   ///   - completion: The completion closure to call when work is complete.
-  public func returnValueAsync<Operation: GraphQLOperation>(
+  public func returnValueAsync(
     for request: HTTPRequest<Operation>,
-    value: GraphQLResult<Operation.Data>,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    value: GraphQLResult<Operation.Data>) {
    
     guard self.isNotCancelled else {
+      return
+    }
+    
+    guard let completion = self.completion else {
       return
     }
     

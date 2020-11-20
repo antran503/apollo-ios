@@ -16,10 +16,11 @@ public class NetworkFetchInterceptor: ApolloInterceptor, Cancellable {
   }
   
   public func interceptAsync<Operation: GraphQLOperation>(
-    chain: RequestChain,
+    chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    completion: @escaping (HTTPResponse<Operation>) -> Void) {
+    
+    debugPrint("NETWORK FETCH INTERCEPTOR")
     
     let urlRequest: URLRequest
     do {
@@ -27,8 +28,7 @@ public class NetworkFetchInterceptor: ApolloInterceptor, Cancellable {
     } catch {
       chain.handleErrorAsync(error,
                              request: request,
-                             response: response,
-                             completion: completion)
+                             response: nil)
       return
     }
     
@@ -49,15 +49,13 @@ public class NetworkFetchInterceptor: ApolloInterceptor, Cancellable {
       case .failure(let error):
         chain.handleErrorAsync(error,
                                request: request,
-                               response: response,
-                               completion: completion)
+                               response: nil)
       case .success(let (data, httpResponse)):
         let response = HTTPResponse<Operation>(response: httpResponse,
                                                rawData: data,
                                                parsedResponse: nil)
-        chain.proceedAsync(request: request,
-                           response: response,
-                           completion: completion)
+        debugPrint("NETWORK FETCHED")
+        completion(response)
       }
     }
     

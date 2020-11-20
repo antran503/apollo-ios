@@ -9,8 +9,9 @@ public protocol ApolloInterceptor: class {
   ///   - response: [optional] The response, if received
   ///   - completion: The completion block to fire when data needs to be returned to the UI.
   func interceptAsync<Operation: GraphQLOperation>(
-    chain: RequestChain,
+    chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void)
+    completion: @escaping (HTTPResponse<Operation>) -> Void)
 }
+
+/// Response in completion instead of passing everything through - then you can handle working with the response

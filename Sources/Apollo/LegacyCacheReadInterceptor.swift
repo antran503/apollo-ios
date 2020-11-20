@@ -13,17 +13,15 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
   }
   
   public func interceptAsync<Operation: GraphQLOperation>(
-    chain: RequestChain,
+    chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    completion: @escaping (HTTPResponse<Operation>) -> Void) {
     
     switch request.operation.operationType {
     case .mutation,
          .subscription:
       // Mutations and subscriptions don't need to hit the cache.
       chain.proceedAsync(request: request,
-                         response: response,
                          completion: completion)
     case .query:
       switch request.cachePolicy {
@@ -31,7 +29,6 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
            .fetchIgnoringCacheData:
         // Don't bother with the cache, just keep going
         chain.proceedAsync(request: request,
-                           response: response,
                            completion: completion)
       case .returnCacheDataAndFetch:
         self.fetchFromCache(for: request, chain: chain) { cacheFetchResult in
@@ -41,13 +38,11 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
             break
           case .success(let graphQLResult):
             chain.returnValueAsync(for: request,
-                                   value: graphQLResult,
-                                   completion: completion)
+                                   value: graphQLResult)
           }
           
           // In either case, keep going asynchronously
           chain.proceedAsync(request: request,
-                             response: response,
                              completion: completion)
         }
       case .returnCacheDataElseFetch:
@@ -56,13 +51,11 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
           case .failure:
             // Cache miss, proceed to network without returning error
             chain.proceedAsync(request: request,
-                               response: response,
                                completion: completion)
           case .success(let graphQLResult):
             // Cache hit! We're done.
             chain.returnValueAsync(for: request,
-                                   value: graphQLResult,
-                                   completion: completion)
+                                   value: graphQLResult)
           }
         }
       case .returnCacheDataDontFetch:
@@ -72,12 +65,10 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
             // Cache miss - don't hit the network, just return the error.
             chain.handleErrorAsync(error,
                                    request: request,
-                                   response: response,
-                                   completion: completion)
+                                   response: nil)
           case .success(let result):
             chain.returnValueAsync(for: request,
-                                   value: result,
-                                   completion: completion)
+                                   value: result)
           }
         }
       }
@@ -86,7 +77,7 @@ public class LegacyCacheReadInterceptor: ApolloInterceptor {
   
   private func fetchFromCache<Operation: GraphQLOperation>(
     for request: HTTPRequest<Operation>,
-    chain: RequestChain,
+    chain: RequestChain<Operation>,
     completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
     
     self.store.load(query: request.operation) { loadResult in

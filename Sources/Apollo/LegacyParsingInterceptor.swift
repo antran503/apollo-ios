@@ -34,58 +34,51 @@ public class LegacyParsingInterceptor: ApolloInterceptor {
   }
   
   public func interceptAsync<Operation: GraphQLOperation>(
-    chain: RequestChain,
+    chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    completion: @escaping (HTTPResponse<Operation>) -> Void) {
     
-    guard let createdResponse = response else {
-        chain.handleErrorAsync(LegacyParsingError.noResponseToParse,
-                               request: request,
-                               response: response,
-                               completion: completion)
-      return
-    }
+    debugPrint("LEGACY PARSING INTERCEPTOR")
     
-    do {
-      let deserialized = try? JSONSerializationFormat.deserialize(data: createdResponse.rawData)
-      let json = deserialized as? JSONObject
-      guard let body = json else {
-        throw LegacyParsingError.couldNotParseToLegacyJSON(data: createdResponse.rawData)
-      }
-      
-      let graphQLResponse = GraphQLResponse(operation: request.operation, body: body)
-      createdResponse.legacyResponse = graphQLResponse
-      
-      switch request.cachePolicy {
-      case .fetchIgnoringCacheCompletely:
-        // There is no cache, so we don't need to get any info on dependencies. Use fast parsing.
-        let fastResult = try graphQLResponse.parseResultFast()
-        createdResponse.parsedResponse = fastResult
-        chain.proceedAsync(request: request,
-                           response: createdResponse,
-                           completion: completion)
-      default:
-        graphQLResponse.parseResultWithCompletion(cacheKeyForObject: self.cacheKeyForObject) { parsingResult in
-          switch parsingResult {
-          case .failure(let error):
-            chain.handleErrorAsync(error,
-                                   request: request,
-                                   response: createdResponse,
-                                   completion: completion)
-          case .success(let (parsedResult, _)):
-            createdResponse.parsedResponse = parsedResult
-            chain.proceedAsync(request: request,
-                               response: createdResponse,
-                               completion: completion)
+    chain.proceedAsync(
+      request: request,
+      completion: { httpResponse in
+        
+        debugPrint("LEGACY PARSING RESPONSE")
+        do {
+          let deserialized = try? JSONSerializationFormat.deserialize(data: httpResponse.rawData)
+          let json = deserialized as? JSONObject
+          guard let body = json else {
+            throw LegacyParsingError.couldNotParseToLegacyJSON(data: httpResponse.rawData)
           }
+          
+          let graphQLResponse = GraphQLResponse(operation: request.operation, body: body)
+          httpResponse.legacyResponse = graphQLResponse
+          
+          switch request.cachePolicy {
+          case .fetchIgnoringCacheCompletely:
+            // There is no cache, so we don't need to get any info on dependencies. Use fast parsing.
+            let fastResult = try graphQLResponse.parseResultFast()
+            httpResponse.parsedResponse = fastResult
+            completion(httpResponse)
+          default:
+            graphQLResponse.parseResultWithCompletion(cacheKeyForObject: self.cacheKeyForObject) { parsingResult in
+              switch parsingResult {
+              case .failure(let error):
+                chain.handleErrorAsync(error,
+                                       request: request,
+                                       response: httpResponse)
+              case .success(let (parsedResult, _)):
+                httpResponse.parsedResponse = parsedResult
+                completion(httpResponse)
+              }
+            }
+          }
+        } catch {
+          chain.handleErrorAsync(error,
+                                 request: request,
+                                 response: httpResponse)
         }
-      }
-    } catch {
-      chain.handleErrorAsync(error,
-                             request: request,
-                             response: response,
-                             completion: completion)
-    }
+      })
   }
 }

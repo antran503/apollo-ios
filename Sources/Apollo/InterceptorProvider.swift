@@ -56,13 +56,18 @@ open class LegacyInterceptorProvider: InterceptorProvider {
   
   open func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
       return [
+        // Pre-load interceptors: In the order they should be applied
         MaxRetryInterceptor(),
         LegacyCacheReadInterceptor(store: self.store),
-        NetworkFetchInterceptor(client: self.client),
-        ResponseCodeInterceptor(),
-        LegacyParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
-        AutomaticPersistedQueryInterceptor(),
+        
+        // Post-load interceptors: In the _reverse_ order of which
         LegacyCacheWriteInterceptor(store: self.store),
+        AutomaticPersistedQueryInterceptor(),
+        LegacyParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
+        ResponseCodeInterceptor(),
+        
+        // Network fetching interceptor: Always last. 
+        NetworkFetchInterceptor(client: self.client),
     ]
   }
   
