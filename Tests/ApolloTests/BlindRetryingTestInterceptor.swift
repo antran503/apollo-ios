@@ -15,13 +15,12 @@ class BlindRetryingTestInterceptor: ApolloInterceptor {
   private(set) var hasBeenCancelled = false
 
   func interceptAsync<Operation: GraphQLOperation>(
-    chain: RequestChain,
+    chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    completion: @escaping (HTTPResponse<Operation>) -> Void) {
+
     self.hitCount += 1
-    chain.retry(request: request,
-                completion: completion)
+    chain.retry(request: request)
   }
   
   // Purposely not adhering to `Cancellable` here to make sure non `Cancellable` interceptors don't have this called.

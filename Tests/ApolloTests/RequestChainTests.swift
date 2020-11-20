@@ -92,7 +92,7 @@ class RequestChainTests: XCTestCase {
         XCTFail("This should not have succeeded")
       case .failure(let error):
         switch error {
-        case RequestChain.ChainError.noInterceptors:
+        case RequestChainError.noInterceptors:
           // This is what we want.
           break
         default:
@@ -140,7 +140,7 @@ class RequestChainTests: XCTestCase {
       
       func handleErrorAsync<Operation: GraphQLOperation>(
           error: Error,
-          chain: RequestChain,
+          chain: RequestChain<Operation>,
           request: HTTPRequest<Operation>,
           response: HTTPResponse<Operation>?,
           completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
@@ -154,8 +154,9 @@ class RequestChainTests: XCTestCase {
       let errorInterceptor = ErrorInterceptor()
       func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
         return [
-          // An interceptor which will error without a response
-          AutomaticPersistedQueryInterceptor()
+          // An interceptor which will error without a parsed response
+          AutomaticPersistedQueryInterceptor(),
+          NetworkFetchInterceptor(client: URLSessionClient())
         ]
       }
       
@@ -166,7 +167,7 @@ class RequestChainTests: XCTestCase {
 
     let provider = TestProvider()
     let transport = RequestChainNetworkTransport(interceptorProvider: provider,
-                                                 endpointURL: TestURL.mockServer.url,
+                                                 endpointURL: TestURL.starWarsServer.url,
                                                  autoPersistQueries: true)
     
     let expectation = self.expectation(description: "Hero name query complete")
@@ -188,7 +189,7 @@ class RequestChainTests: XCTestCase {
       }
     }
     
-    self.wait(for: [expectation], timeout: 1)
+    self.wait(for: [expectation], timeout: 3)
     
     switch provider.errorInterceptor.error {
     case .some(let error):
@@ -210,7 +211,7 @@ class RequestChainTests: XCTestCase {
       
       func handleErrorAsync<Operation: GraphQLOperation>(
         error: Error,
-        chain: RequestChain,
+        chain: RequestChain<Operation>,
         request: HTTPRequest<Operation>,
         response: HTTPResponse<Operation>?,
         completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
@@ -226,7 +227,8 @@ class RequestChainTests: XCTestCase {
       override func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
         return [
           // An interceptor which will error without a response
-          AutomaticPersistedQueryInterceptor()
+          AutomaticPersistedQueryInterceptor(),
+          NetworkFetchInterceptor(client: URLSessionClient())
         ]
       }
       
@@ -237,11 +239,12 @@ class RequestChainTests: XCTestCase {
 
     let provider = TestProvider(store: ApolloStore())
     let transport = RequestChainNetworkTransport(interceptorProvider: provider,
-                                                 endpointURL: TestURL.mockServer.url,
+                                                 endpointURL: TestURL.starWarsServer.url,
                                                  autoPersistQueries: true)
     
     let expectation = self.expectation(description: "Hero name query complete")
     _ = transport.send(operation: HeroNameQuery()) { result in
+      debugPrint("HIT COMPLETION BLOCK")
       defer {
         expectation.fulfill()
       }
@@ -259,7 +262,7 @@ class RequestChainTests: XCTestCase {
       }
     }
     
-    self.wait(for: [expectation], timeout: 1)
+    self.wait(for: [expectation], timeout: 3)
     
     switch provider.errorInterceptor.error {
     case .some(let error):

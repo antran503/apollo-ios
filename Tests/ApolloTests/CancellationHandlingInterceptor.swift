@@ -13,10 +13,9 @@ class CancellationHandlingInterceptor: ApolloInterceptor, Cancellable {
   private(set) var hasBeenCancelled = false
   
   func interceptAsync<Operation: GraphQLOperation>(
-    chain: RequestChain,
+    chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
-    response: HTTPResponse<Operation>?,
-    completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) {
+    completion: @escaping (HTTPResponse<Operation>) -> Void) {
     
     guard !self.hasBeenCancelled else {
       return
@@ -24,7 +23,6 @@ class CancellationHandlingInterceptor: ApolloInterceptor, Cancellable {
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
       chain.proceedAsync(request: request,
-                         response: response,
                          completion: completion)
     }
   }

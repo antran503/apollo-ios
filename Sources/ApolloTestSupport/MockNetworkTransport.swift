@@ -14,11 +14,13 @@ public final class MockNetworkTransport: RequestChainNetworkTransport {
       return [
         MaxRetryInterceptor(),
         LegacyCacheReadInterceptor(store: self.store),
-        MockGraphQLServerInterceptor(server: server),
-        ResponseCodeInterceptor(),
+        
+        LegacyCacheWriteInterceptor(store: self.store),
         LegacyParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),
         AutomaticPersistedQueryInterceptor(),
-        LegacyCacheWriteInterceptor(store: self.store),
+        ResponseCodeInterceptor(),
+
+        MockGraphQLServerInterceptor(server: server),
       ]
     }
   }
@@ -37,7 +39,11 @@ private class MockGraphQLServerInterceptor: ApolloInterceptor {
     self.server = server
   }
   
-  public func interceptAsync<Operation>(chain: RequestChain, request: HTTPRequest<Operation>, response: HTTPResponse<Operation>?, completion: @escaping (Result<GraphQLResult<Operation.Data>, Error>) -> Void) where Operation: GraphQLOperation {
+  public func interceptAsync<Operation: GraphQLOperation>(
+    chain: RequestChain<Operation>,
+    request: HTTPRequest<Operation>,
+    completion: @escaping (HTTPResponse<Operation>) -> Void) {
+    
     server.serve(request: request) { result in
       let httpResponse = HTTPURLResponse(url: TestURL.mockServer.url,
                                          statusCode: 200,
@@ -48,16 +54,13 @@ private class MockGraphQLServerInterceptor: ApolloInterceptor {
       case .failure(let error):
         chain.handleErrorAsync(error,
                                request: request,
-                               response: response,
-                               completion: completion)
+                               response: nil)
       case .success(let body):
         let data = try! JSONSerializationFormat.serialize(value: body)
         let response = HTTPResponse<Operation>(response: httpResponse,
                                                rawData: data,
                                                parsedResponse: nil)
-        chain.proceedAsync(request: request,
-                           response: response,
-                           completion: completion)
+        completion(response)
       }
     }
   }

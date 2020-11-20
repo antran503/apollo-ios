@@ -87,8 +87,8 @@ class InterceptorTests: XCTestCase {
         [
           MaxRetryInterceptor(maxRetriesAllowed: self.retryCount),
           self.testInterceptor,
-          NetworkFetchInterceptor(client: self.mockClient),
           LegacyParsingInterceptor(),
+          NetworkFetchInterceptor(client: self.mockClient),
         ]
       }
     }
@@ -133,8 +133,8 @@ class InterceptorTests: XCTestCase {
       
       func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
         [
-          NetworkFetchInterceptor(client: self.mockClient),
           LegacyParsingInterceptor(),
+          NetworkFetchInterceptor(client: self.mockClient),          
         ]
       }
     }
@@ -181,9 +181,9 @@ class InterceptorTests: XCTestCase {
       
       func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
         [
-          NetworkFetchInterceptor(client: self.mockClient),
           ResponseCodeInterceptor(),
-          LegacyParsingInterceptor()
+          LegacyParsingInterceptor(),
+          NetworkFetchInterceptor(client: self.mockClient),
         ]
       }
     }
@@ -237,9 +237,9 @@ class InterceptorTests: XCTestCase {
       
       func interceptors<Operation: GraphQLOperation>(for operation: Operation) -> [ApolloInterceptor] {
         [
-          NetworkFetchInterceptor(client: self.mockClient),
           ResponseCodeInterceptor(),
           LegacyParsingInterceptor(),
+          NetworkFetchInterceptor(client: self.mockClient),
         ]
       }
     }
