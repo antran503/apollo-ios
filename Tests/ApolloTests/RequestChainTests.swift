@@ -244,7 +244,6 @@ class RequestChainTests: XCTestCase {
     
     let expectation = self.expectation(description: "Hero name query complete")
     _ = transport.send(operation: HeroNameQuery()) { result in
-      debugPrint("HIT COMPLETION BLOCK")
       defer {
         expectation.fulfill()
       }

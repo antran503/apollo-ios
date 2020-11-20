@@ -28,7 +28,6 @@ public class MaxRetryInterceptor: ApolloInterceptor {
     chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
     completion: @escaping (HTTPResponse<Operation>) -> Void) {
-    debugPrint("MAX RETRY INTERCEPTOR")
     guard self.hitCount <= self.maxRetries else {
       let error = RetryError.hitMaxRetryCount(count: self.maxRetries,
                                               operationName: request.operation.operationName)

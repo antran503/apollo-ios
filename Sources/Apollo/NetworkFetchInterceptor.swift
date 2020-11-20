@@ -19,9 +19,7 @@ public class NetworkFetchInterceptor: ApolloInterceptor, Cancellable {
     chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
     completion: @escaping (HTTPResponse<Operation>) -> Void) {
-    
-    debugPrint("NETWORK FETCH INTERCEPTOR")
-    
+      
     let urlRequest: URLRequest
     do {
       urlRequest = try request.toURLRequest()
@@ -54,7 +52,6 @@ public class NetworkFetchInterceptor: ApolloInterceptor, Cancellable {
         let response = HTTPResponse<Operation>(response: httpResponse,
                                                rawData: data,
                                                parsedResponse: nil)
-        debugPrint("NETWORK FETCHED")
         completion(response)
       }
     }

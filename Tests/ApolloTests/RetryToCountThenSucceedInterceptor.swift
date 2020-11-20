@@ -21,7 +21,6 @@ class RetryToCountThenSucceedInterceptor: ApolloInterceptor {
     chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
     completion: @escaping (HTTPResponse<Operation>) -> Void) {
-    debugPrint("RETRY TO COUNT INTERCEPTOR")
     if self.timesRetryHasBeenCalled < self.timesToCallRetry {
       self.timesRetryHasBeenCalled += 1
       chain.retry(request: request)

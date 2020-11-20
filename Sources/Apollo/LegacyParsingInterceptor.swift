@@ -37,14 +37,11 @@ public class LegacyParsingInterceptor: ApolloInterceptor {
     chain: RequestChain<Operation>,
     request: HTTPRequest<Operation>,
     completion: @escaping (HTTPResponse<Operation>) -> Void) {
-    
-    debugPrint("LEGACY PARSING INTERCEPTOR")
-    
+        
     chain.proceedAsync(
       request: request,
       completion: { httpResponse in
-        
-        debugPrint("LEGACY PARSING RESPONSE")
+
         do {
           let deserialized = try? JSONSerializationFormat.deserialize(data: httpResponse.rawData)
           let json = deserialized as? JSONObject
