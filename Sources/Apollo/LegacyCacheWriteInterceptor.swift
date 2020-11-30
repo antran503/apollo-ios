@@ -56,10 +56,10 @@ public class LegacyCacheWriteInterceptor: ApolloPostNetworkInterceptor {
         self.store.publish(records: records, identifier: request.contextIdentifier)
       }
       
-      chain.proceedAsync(request: request,
-                         response: response,
-                         completion: completion)
-    }.catch { error in
+      chain.proceedWithHandlingResponse(request: request,
+                                        response: response,
+                                        completion: completion)
+    } catch {
       chain.handleErrorAsync(error,
                              request: request,
                              response: response,
