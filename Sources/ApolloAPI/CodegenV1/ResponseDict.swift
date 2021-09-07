@@ -7,32 +7,32 @@ public struct ResponseDict {
     data[key] as! T
   }
 
-  public subscript<T:ScalarType>(_ key: String) -> T? {
+  public subscript<T: ScalarType>(_ key: String) -> T? {
     data[key] as? T
   }
 
   public subscript<T: SelectionSet>(_ key: String) -> T {
-    let entityData = data[key] as! [String: Any]
-    return T.init(data: ResponseDict(data: entityData))
+    let objectData = data[key] as! [String: Any]
+    return T.init(data: ResponseDict(data: objectData))
   }
 
   public subscript<T: SelectionSet>(_ key: String) -> T? {
-    guard let entityData = data[key] as? [String: Any] else { return nil }
-    return T.init(data: ResponseDict(data: entityData))
+    guard let objectData = data[key] as? [String: Any] else { return nil }
+    return T.init(data: ResponseDict(data: objectData))
   }
 
   public subscript<T: SelectionSet>(_ key: String) -> [T] {
-    let entityData = data[key] as! [[String: Any]]
-    return entityData.map { T.init(data: ResponseDict(data: $0)) }
+    let objectData = data[key] as! [[String: Any]]
+    return objectData.map { T.init(data: ResponseDict(data: $0)) }
   }
 
   public subscript<T>(_ key: String) -> GraphQLEnum<T> {
-    let entityData = data[key] as! String
-    return GraphQLEnum(rawValue: entityData)
+    let objectData = data[key] as! String
+    return GraphQLEnum(rawValue: objectData)
   }
 
   public subscript<T>(_ key: String) -> GraphQLEnum<T>? {
-    guard let entityData = data[key] as? String else { return nil }
-    return GraphQLEnum(rawValue: entityData)
+    guard let objectData = data[key] as? String else { return nil }
+    return GraphQLEnum(rawValue: objectData)
   }
 }
