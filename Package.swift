@@ -44,7 +44,10 @@ let package = Package(
       .upToNextMinor(from: "1.0.0")),
     .package(
       url: "https://github.com/apple/swift-collections",
-      .upToNextMajor(from: "1.0.0"))
+      .upToNextMajor(from: "1.0.0")),
+    .package(
+      url: "https://github.com/stencilproject/Stencil.git",
+      .upToNextMinor(from: "0.14.2"))
   ],
   targets: [
     .target(

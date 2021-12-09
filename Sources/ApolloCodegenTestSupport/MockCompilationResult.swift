@@ -1,9 +1,9 @@
 @testable import ApolloCodegenLib
 
 public extension CompilationResult {
-  class func mock(referencedTypes: ReferencedTypes? = nil) -> Self {
+  class func mock(referencedTypes: [GraphQLNamedType] = []) -> Self {
     let mock = Self.emptyMockObject()
-    mock.referencedTypes = referencedTypes ?? ReferencedTypes([])
+    mock.referencedTypes = referencedTypes
     return mock
   }
 }

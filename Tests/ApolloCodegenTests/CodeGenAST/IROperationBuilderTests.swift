@@ -28,7 +28,8 @@ class IROperationBuilderTests: XCTestCase {
   // MARK: = Helpers
 
   func buildSubjectOperation() {
-    subject = IR(compilationResult: mockCompilationResult).build(operation: operation)
+    subject = IR(schemaName: "MockSchema", compilationResult: mockCompilationResult)
+      .build(operation: operation)
   }
 
   // MARK: - Children Computation

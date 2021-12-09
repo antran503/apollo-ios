@@ -181,7 +181,8 @@
 		DE09114E27288B1F000648E5 /* SortedSelections.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE09114D27288B1F000648E5 /* SortedSelections.swift */; };
 		DE09F9BD27024FEA00795949 /* InputObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE09F9BC27024FEA00795949 /* InputObject.swift */; };
 		DE09F9C3270269E800795949 /* MockJavaScriptObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE09F9C0270269E800795949 /* MockJavaScriptObject.swift */; };
-		DE09F9C6270269F800795949 /* Generate_OperationDefinition_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE09F9C5270269F800795949 /* Generate_OperationDefinition_Tests.swift */; };
+		DE09F9C6270269F800795949 /* Generate_OperationDefinition_DocumentType_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE09F9C5270269F800795949 /* Generate_OperationDefinition_DocumentType_Tests.swift */; };
+		DE0FF9322762BF9C00E31744 /* MockApolloCodegenConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0FF9312762BF9C00E31744 /* MockApolloCodegenConfiguration.swift */; };
 		DE12B2D7273B204B003371CC /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE12B2D6273B204B003371CC /* TestError.swift */; };
 		DE12B2D9273C4338003371CC /* MockIRModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE12B2D8273C4338003371CC /* MockIRModels.swift */; };
 		DE181A2C26C5C0CB000C0B9C /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE181A2B26C5C0CB000C0B9C /* WebSocket.swift */; };
@@ -244,6 +245,8 @@
 		DEAFB781270647D400BE02F3 /* MockCompilationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAFB780270647D400BE02F3 /* MockCompilationResult.swift */; };
 		DEAFB78327064F6900BE02F3 /* MockGraphQLType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAFB78227064F6900BE02F3 /* MockGraphQLType.swift */; };
 		DEAFB787270652D100BE02F3 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = DEAFB786270652D100BE02F3 /* OrderedCollections */; };
+		DEB33432276280A700825F1A /* Stencil in Frameworks */ = {isa = PBXBuildFile; productRef = DEB33431276280A700825F1A /* Stencil */; };
+		DEB334382762811400825F1A /* OperationDefinitionGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB334362762810B00825F1A /* OperationDefinitionGenerator.swift */; };
 		DECD46D0262F64D000924527 /* StarWarsApolloSchemaDownloaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DECD46CF262F64D000924527 /* StarWarsApolloSchemaDownloaderTests.swift */; };
 		DECD46FB262F659500924527 /* ApolloCodegenLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B7B6F47233C26D100F32205 /* ApolloCodegenLib.framework */; };
 		DECD4736262F668500924527 /* UploadAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2DFBB624E1FA0D00ED3AE6 /* UploadAPI.framework */; };
@@ -799,8 +802,9 @@
 		DE09114D27288B1F000648E5 /* SortedSelections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortedSelections.swift; sourceTree = "<group>"; };
 		DE09F9BC27024FEA00795949 /* InputObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputObject.swift; sourceTree = "<group>"; };
 		DE09F9C0270269E800795949 /* MockJavaScriptObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockJavaScriptObject.swift; sourceTree = "<group>"; };
-		DE09F9C5270269F800795949 /* Generate_OperationDefinition_Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generate_OperationDefinition_Tests.swift; sourceTree = "<group>"; };
+		DE09F9C5270269F800795949 /* Generate_OperationDefinition_DocumentType_Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generate_OperationDefinition_DocumentType_Tests.swift; sourceTree = "<group>"; };
 		DE09F9C727026E0B00795949 /* Schema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schema.swift; sourceTree = "<group>"; };
+		DE0FF9312762BF9C00E31744 /* MockApolloCodegenConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockApolloCodegenConfiguration.swift; sourceTree = "<group>"; };
 		DE12B2D6273B204B003371CC /* TestError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestError.swift; sourceTree = "<group>"; };
 		DE12B2D8273C4338003371CC /* MockIRModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockIRModels.swift; sourceTree = "<group>"; };
 		DE181A2B26C5C0CB000C0B9C /* WebSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = "<group>"; };
@@ -890,6 +894,7 @@
 		DEAFB77A2706444B00BE02F3 /* IROperationBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IROperationBuilderTests.swift; sourceTree = "<group>"; };
 		DEAFB780270647D400BE02F3 /* MockCompilationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCompilationResult.swift; sourceTree = "<group>"; };
 		DEAFB78227064F6900BE02F3 /* MockGraphQLType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockGraphQLType.swift; sourceTree = "<group>"; };
+		DEB334362762810B00825F1A /* OperationDefinitionGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationDefinitionGenerator.swift; sourceTree = "<group>"; };
 		DECD46CF262F64D000924527 /* StarWarsApolloSchemaDownloaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarWarsApolloSchemaDownloaderTests.swift; sourceTree = "<group>"; };
 		DECD490B262F81BF00924527 /* ApolloCodegenTestSupport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ApolloCodegenTestSupport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DECD490D262F81BF00924527 /* ApolloCodegenTestSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApolloCodegenTestSupport.h; sourceTree = "<group>"; };
@@ -953,6 +958,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE736F4626FA6EE6007187F2 /* InflectorKit in Frameworks */,
+				DEB33432276280A700825F1A /* Stencil in Frameworks */,
 				DECD47C3262F779800924527 /* ApolloUtils.framework in Frameworks */,
 				DEAFB787270652D100BE02F3 /* OrderedCollections in Frameworks */,
 			);
@@ -1377,7 +1383,6 @@
 				9BAEEC16234C275600808306 /* ApolloSchemaPublicTests.swift */,
 				9BAEEC18234C297800808306 /* ApolloCodegenConfigurationTests.swift */,
 				9BAEEC0D234BB95B00808306 /* FileManagerExtensionsTests.swift */,
-				9B68F0542416B33300E97318 /* LineByLineComparison.swift */,
 				9B4751AC2575B5070001FB87 /* PluralizerTests.swift */,
 				9B8C3FB4248DA3E000707B13 /* URLExtensionsTests.swift */,
 				9BAEEC0C234BB95B00808306 /* Info.plist */,
@@ -1459,6 +1464,7 @@
 				9B7B6F57233C287100F32205 /* ApolloCodegen.swift */,
 				9B7B6F58233C287100F32205 /* ApolloCodegenConfiguration.swift */,
 				E674DB40274C0A9B009BB90E /* Glob.swift */,
+				DEB33435276280F600825F1A /* Generators */,
 			);
 			name = Codegen;
 			sourceTree = "<group>";
@@ -1769,7 +1775,7 @@
 		DE09F9C4270269F800795949 /* CodeGeneration */ = {
 			isa = PBXGroup;
 			children = (
-				DE09F9C5270269F800795949 /* Generate_OperationDefinition_Tests.swift */,
+				DE09F9C5270269F800795949 /* Generate_OperationDefinition_DocumentType_Tests.swift */,
 			);
 			path = CodeGeneration;
 			sourceTree = "<group>";
@@ -1785,6 +1791,7 @@
 			isa = PBXGroup;
 			children = (
 				DE223C2A2721FAD6004A0148 /* ASTMatchers.swift */,
+				9B68F0542416B33300E97318 /* LineByLineComparison.swift */,
 			);
 			path = TestHelpers;
 			sourceTree = "<group>";
@@ -1970,6 +1977,14 @@
 			path = IR;
 			sourceTree = "<group>";
 		};
+		DEB33435276280F600825F1A /* Generators */ = {
+			isa = PBXGroup;
+			children = (
+				DEB334362762810B00825F1A /* OperationDefinitionGenerator.swift */,
+			);
+			path = Generators;
+			sourceTree = "<group>";
+		};
 		DECD490C262F81BF00924527 /* ApolloCodegenTestSupport */ = {
 			isa = PBXGroup;
 			children = (
@@ -1978,6 +1993,7 @@
 				E6D79AB926EC05290094434A /* MockNetworkSession.swift */,
 				DE09F9C0270269E800795949 /* MockJavaScriptObject.swift */,
 				DEAFB780270647D400BE02F3 /* MockCompilationResult.swift */,
+				DE0FF9312762BF9C00E31744 /* MockApolloCodegenConfiguration.swift */,
 				DE12B2D8273C4338003371CC /* MockIRModels.swift */,
 				DEAFB78227064F6900BE02F3 /* MockGraphQLType.swift */,
 				E6BF98FB272C8FFC00C1FED8 /* MockFileManager.swift */,
@@ -2211,6 +2227,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				DEB33434276280C300825F1A /* PBXTargetDependency */,
 				DE223C26271F337E004A0148 /* PBXTargetDependency */,
 				E6E4209426A7DF5800B82624 /* PBXTargetDependency */,
 				9B683549246348CB00337AE6 /* PBXTargetDependency */,
@@ -2219,6 +2236,7 @@
 			packageProductDependencies = (
 				E6E4209126A7DF4200B82624 /* InflectorKit */,
 				DEAFB786270652D100BE02F3 /* OrderedCollections */,
+				DEB33431276280A700825F1A /* Stencil */,
 			);
 			productName = ApolloCodegenLib;
 			productReference = 9B7B6F47233C26D100F32205 /* ApolloCodegenLib.framework */;
@@ -2588,6 +2606,7 @@
 				E6E4209026A7DF4200B82624 /* XCRemoteSwiftPackageReference "InflectorKit" */,
 				DE5EB9C326EFD4D10004176A /* XCRemoteSwiftPackageReference "Nimble" */,
 				DEAFB784270652AF00BE02F3 /* XCRemoteSwiftPackageReference "swift-collections" */,
+				DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */,
 			);
 			productRefGroup = 9FC750451D2A532C00458D91 /* Products */;
 			projectDirPath = "";
@@ -2793,6 +2812,7 @@
 				9F62DFD02590710E00E6E808 /* GraphQLSource.swift in Sources */,
 				9BAEEBF32346DDAD00808306 /* CodegenLogger.swift in Sources */,
 				9F628EB52593651B00F94F9D /* GraphQLValue.swift in Sources */,
+				DEB334382762811400825F1A /* OperationDefinitionGenerator.swift in Sources */,
 				DE3484622746FF8F0065B77E /* IR+OperationBuilder.swift in Sources */,
 				DE223C2D2721FCE8004A0148 /* ScopedSelectionSetHashable.swift in Sources */,
 				9B47518D2575AA850001FB87 /* Pluralizer.swift in Sources */,
@@ -2864,7 +2884,7 @@
 				E6D79AB826E9D59C0094434A /* URLDownloaderTests.swift in Sources */,
 				9F62DF8E2590539A00E6E808 /* SchemaIntrospectionTests.swift in Sources */,
 				9B68F0552416B33300E97318 /* LineByLineComparison.swift in Sources */,
-				DE09F9C6270269F800795949 /* Generate_OperationDefinition_Tests.swift in Sources */,
+				DE09F9C6270269F800795949 /* Generate_OperationDefinition_DocumentType_Tests.swift in Sources */,
 				9B4751AD2575B5070001FB87 /* PluralizerTests.swift in Sources */,
 				9BAEEC19234C297800808306 /* ApolloCodegenConfigurationTests.swift in Sources */,
 			);
@@ -3103,6 +3123,7 @@
 				DECD4921262F81CE00924527 /* CodegenTestHelper.swift in Sources */,
 				DEAFB78327064F6900BE02F3 /* MockGraphQLType.swift in Sources */,
 				DE12B2D9273C4338003371CC /* MockIRModels.swift in Sources */,
+				DE0FF9322762BF9C00E31744 /* MockApolloCodegenConfiguration.swift in Sources */,
 				E6630B8C26F0639B002D9E41 /* MockNetworkSession.swift in Sources */,
 				DEAFB781270647D400BE02F3 /* MockCompilationResult.swift in Sources */,
 			);
@@ -3219,6 +3240,10 @@
 			isa = PBXTargetDependency;
 			target = 9FC750431D2A532C00458D91 /* Apollo */;
 			targetProxy = DE6B15B226152BE10068D642 /* PBXContainerItemProxy */;
+		};
+		DEB33434276280C300825F1A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = DEB33433276280C300825F1A /* Stencil */;
 		};
 		DECD46FA262F659100924527 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3848,6 +3873,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stencilproject/Stencil.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.14.2;
+			};
+		};
 		E6E4209026A7DF4200B82624 /* XCRemoteSwiftPackageReference "InflectorKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mattt/InflectorKit.git";
@@ -3888,6 +3921,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DEAFB784270652AF00BE02F3 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = OrderedCollections;
+		};
+		DEB33431276280A700825F1A /* Stencil */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */;
+			productName = Stencil;
+		};
+		DEB33433276280C300825F1A /* Stencil */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */;
+			productName = Stencil;
 		};
 		DED45E95261B9EE30086EF63 /* SQLite */ = {
 			isa = XCSwiftPackageProductDependency;

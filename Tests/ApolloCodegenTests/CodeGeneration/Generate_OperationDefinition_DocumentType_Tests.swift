@@ -1,11 +1,34 @@
 import XCTest
 import Nimble
+import Stencil
 @testable import ApolloCodegenLib
 import ApolloCodegenTestSupport
+@testable import SQLite
 
-class Generate_OperationDefinition_Tests: XCTestCase {
+class Generate_OperationDefinition_DocumentType_Tests: XCTestCase {
 
-  func test__generate__generatesWithOperationDefinition() {
+  var environment: Environment!
+  var config: ApolloCodegenConfiguration!
+
+  override func setUp() {
+    super.setUp()
+    environment = Environment(extensions: [OperationDefinitionExtension()])
+  }
+
+  override func tearDown() {
+    super.tearDown()
+    environment = nil
+    config = nil
+  }
+
+  func renderDocumentType() throws -> String {
+    let context: [String: Any] = [
+      "config": try XCTUnwrap(config)
+    ]
+    return try environment.renderTemplate(string: "{% documentType %}", context: context)
+  }
+
+  func test__generate__generatesWithOperationDefinition() throws {
     // given
     let definition = CompilationResult.OperationDefinition.mock()
     definition.source =
@@ -14,10 +37,10 @@ class Generate_OperationDefinition_Tests: XCTestCase {
       name
     }
     """
-    // APQConfig: disabled
+    config = .mock(apqs: .disabled)
 
     // when
-    let actual = ""
+    let actual = try renderDocumentType()
 
     // then
     let expected =
@@ -30,10 +53,10 @@ class Generate_OperationDefinition_Tests: XCTestCase {
       }
       ""\"))
     """
-    expect(actual).to(equal(expected))
+    expect(actual).to(equalLineByLine(expected))
   }
 
-  func test__generate__givenIncludesFragment_generatesWithOperationDefinitionAndFragment() {
+  func test__generate__givenIncludesFragment_generatesWithOperationDefinitionAndFragment() throws {
     // given
     let fragment = CompilationResult.FragmentDefinition.mock()
     fragment.source =
@@ -54,7 +77,7 @@ class Generate_OperationDefinition_Tests: XCTestCase {
     // APQConfig: disabled
 
     // when
-    let actual = ""
+    let actual = try renderDocumentType()
 
     // then
     let expected =
@@ -68,10 +91,10 @@ class Generate_OperationDefinition_Tests: XCTestCase {
       ""\",
       fragments: [NameFragment.self]))
     """
-    expect(actual).to(equal(expected))
+    expect(actual).to(equalLineByLine(expected))
   }
 
-  func test__generate__givenIncludesManyFragments_generatesWithOperationDefinitionAndFragment() {
+  func test__generate__givenIncludesManyFragments_generatesWithOperationDefinitionAndFragment() throws {
     // given
     let fragments = [
       CompilationResult.FragmentDefinition.mock("Fragment1"),
@@ -96,7 +119,7 @@ class Generate_OperationDefinition_Tests: XCTestCase {
     // APQConfig: disabled
 
     // when
-    let actual = ""
+    let actual = try renderDocumentType()
 
     // then
     let expected =
@@ -110,10 +133,10 @@ class Generate_OperationDefinition_Tests: XCTestCase {
       ""\",
       fragments: [Fragment1.self, Fragment2.self, Fragment3.self, Fragment4.self, FragmentWithLongName1234123412341234123412341234.self]))
     """
-    expect(actual).to(equal(expected))
+    expect(actual).to(equalLineByLine(expected))
   }
 
-  func test__generate__givenAPQ_automaticallyPersist_generatesWithOperationDefinitionAndIdentifier() {
+  func test__generate__givenAPQ_automaticallyPersist_generatesWithOperationDefinitionAndIdentifier() throws {
     // given
     let definition = CompilationResult.OperationDefinition.mock()
     definition.operationIdentifier = "1ec89997a185c50bacc5f62ad41f27f3070f4a950d72e4a1510a4c64160812d5"
@@ -127,7 +150,7 @@ class Generate_OperationDefinition_Tests: XCTestCase {
     // APQConfig: automatically persist
 
     // when
-    let actual = ""
+    let actual = try renderDocumentType()
 
     // then
     let expected =
@@ -141,10 +164,10 @@ class Generate_OperationDefinition_Tests: XCTestCase {
       }
       ""\"))
     """
-    expect(actual).to(equal(expected))
+    expect(actual).to(equalLineByLine(expected))
   }
 
-  func test__generate__givenAPQ_persistedOperationsOnly_generatesWithOperationDefinitionAndIdentifier() {
+  func test__generate__givenAPQ_persistedOperationsOnly_generatesWithOperationDefinitionAndIdentifier() throws {
     // given
     let definition = CompilationResult.OperationDefinition.mock()
     definition.operationIdentifier = "1ec89997a185c50bacc5f62ad41f27f3070f4a950d72e4a1510a4c64160812d5"
@@ -158,7 +181,7 @@ class Generate_OperationDefinition_Tests: XCTestCase {
     // APQConfig: persistedOperationsOnly
 
     // when
-    let actual = ""
+    let actual = try renderDocumentType()
 
     // then
     let expected =
@@ -166,6 +189,6 @@ class Generate_OperationDefinition_Tests: XCTestCase {
     public let document: DocumentType = .persistedOperationsOnly(
       operationIdentifier: "1ec89997a185c50bacc5f62ad41f27f3070f4a950d72e4a1510a4c64160812d5")
     """
-    expect(actual).to(equal(expected))
+    expect(actual).to(equalLineByLine(expected))
   }
 }
