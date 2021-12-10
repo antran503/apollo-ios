@@ -245,7 +245,6 @@
 		DEAFB781270647D400BE02F3 /* MockCompilationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAFB780270647D400BE02F3 /* MockCompilationResult.swift */; };
 		DEAFB78327064F6900BE02F3 /* MockGraphQLType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAFB78227064F6900BE02F3 /* MockGraphQLType.swift */; };
 		DEAFB787270652D100BE02F3 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = DEAFB786270652D100BE02F3 /* OrderedCollections */; };
-		DEB33432276280A700825F1A /* Stencil in Frameworks */ = {isa = PBXBuildFile; productRef = DEB33431276280A700825F1A /* Stencil */; };
 		DEB334382762811400825F1A /* OperationDefinitionGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB334362762810B00825F1A /* OperationDefinitionGenerator.swift */; };
 		DECD46D0262F64D000924527 /* StarWarsApolloSchemaDownloaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DECD46CF262F64D000924527 /* StarWarsApolloSchemaDownloaderTests.swift */; };
 		DECD46FB262F659500924527 /* ApolloCodegenLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B7B6F47233C26D100F32205 /* ApolloCodegenLib.framework */; };
@@ -958,7 +957,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE736F4626FA6EE6007187F2 /* InflectorKit in Frameworks */,
-				DEB33432276280A700825F1A /* Stencil in Frameworks */,
 				DECD47C3262F779800924527 /* ApolloUtils.framework in Frameworks */,
 				DEAFB787270652D100BE02F3 /* OrderedCollections in Frameworks */,
 			);
@@ -2227,7 +2225,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				DEB33434276280C300825F1A /* PBXTargetDependency */,
 				DE223C26271F337E004A0148 /* PBXTargetDependency */,
 				E6E4209426A7DF5800B82624 /* PBXTargetDependency */,
 				9B683549246348CB00337AE6 /* PBXTargetDependency */,
@@ -2236,7 +2233,6 @@
 			packageProductDependencies = (
 				E6E4209126A7DF4200B82624 /* InflectorKit */,
 				DEAFB786270652D100BE02F3 /* OrderedCollections */,
-				DEB33431276280A700825F1A /* Stencil */,
 			);
 			productName = ApolloCodegenLib;
 			productReference = 9B7B6F47233C26D100F32205 /* ApolloCodegenLib.framework */;
@@ -2606,7 +2602,6 @@
 				E6E4209026A7DF4200B82624 /* XCRemoteSwiftPackageReference "InflectorKit" */,
 				DE5EB9C326EFD4D10004176A /* XCRemoteSwiftPackageReference "Nimble" */,
 				DEAFB784270652AF00BE02F3 /* XCRemoteSwiftPackageReference "swift-collections" */,
-				DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */,
 			);
 			productRefGroup = 9FC750451D2A532C00458D91 /* Products */;
 			projectDirPath = "";
@@ -3241,10 +3236,6 @@
 			target = 9FC750431D2A532C00458D91 /* Apollo */;
 			targetProxy = DE6B15B226152BE10068D642 /* PBXContainerItemProxy */;
 		};
-		DEB33434276280C300825F1A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = DEB33433276280C300825F1A /* Stencil */;
-		};
 		DECD46FA262F659100924527 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9B7B6F46233C26D100F32205 /* ApolloCodegenLib */;
@@ -3873,14 +3864,6 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/stencilproject/Stencil.git";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.14.2;
-			};
-		};
 		E6E4209026A7DF4200B82624 /* XCRemoteSwiftPackageReference "InflectorKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mattt/InflectorKit.git";
@@ -3921,16 +3904,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DEAFB784270652AF00BE02F3 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = OrderedCollections;
-		};
-		DEB33431276280A700825F1A /* Stencil */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */;
-			productName = Stencil;
-		};
-		DEB33433276280C300825F1A /* Stencil */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DEB33430276280A700825F1A /* XCRemoteSwiftPackageReference "Stencil" */;
-			productName = Stencil;
 		};
 		DED45E95261B9EE30086EF63 /* SQLite */ = {
 			isa = XCSwiftPackageProductDependency;
