@@ -12,11 +12,6 @@ extension IR {
     /// All fragments referenced by all selections sets in the operation.
     let fragmentsUsed: OrderedSet<CompilationResult.FragmentDefinition>
 
-    lazy var operationIdentifier: String = {
-      #warning("TODO: Compute this from source + referenced fragments")
-      return ""
-    }()
-
     init(
       definition: CompilationResult.OperationDefinition,
       rootField: EntityField,

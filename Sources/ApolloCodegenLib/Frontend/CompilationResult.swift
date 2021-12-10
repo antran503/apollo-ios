@@ -23,6 +23,11 @@ public class CompilationResult: JavaScriptObject {
     
     lazy var filePath: String = self["filePath"]
 
+    lazy var operationIdentifier: String = {
+      #warning("TODO: Compute this from source + referenced fragments")
+      return ""
+    }()
+
     /// Computes the fragments that the operation uses by all selections on the operation.
     #warning("TODO: Implement this and unit test. Probably want to implement fragments used for each SelectionSet and aggregate them here.")
 //    public internal(set) lazy var fragmentsUsed: Set<FragmentDefinition> = []
