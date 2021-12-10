@@ -72,23 +72,7 @@ class IR {
         return matchingUnions
       }
     }
-  }
-
-  class Operation {
-    let definition: CompilationResult.OperationDefinition
-
-    /// The root field of the operation. This field must be the root query, mutation, or
-    /// subscription field of the schema.
-    let rootField: EntityField
-
-    init(
-      definition: CompilationResult.OperationDefinition,
-      rootField: EntityField
-    ) {
-      self.definition = definition
-      self.rootField = rootField
-    }
-  }
+  }  
 
   /// Represents a concrete entity in an operation that fields are selected upon.
   ///

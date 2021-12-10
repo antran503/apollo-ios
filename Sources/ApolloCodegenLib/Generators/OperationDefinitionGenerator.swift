@@ -34,7 +34,7 @@ enum OperationDefinitionGenerator {
 extension OperationDefinitionGenerator {
   enum DocumentType {
     static func render(
-      operation: CompilationResult.OperationDefinition,
+      operation: IR.Operation,
       apq: ApolloCodegenConfiguration.APQConfig
     ) -> Template {
       """
@@ -44,7 +44,7 @@ extension OperationDefinitionGenerator {
         )
         definition: .init(
         ""\"
-        \(operation.source)
+        \(operation.definition.source)
         ""\"))
       """
     }

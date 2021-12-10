@@ -214,6 +214,7 @@
 		DE2FCF4926E94D150057EA67 /* SelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2FCF4826E94D150057EA67 /* SelectionTests.swift */; };
 		DE3484622746FF8F0065B77E /* IR+OperationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3484612746FF8F0065B77E /* IR+OperationBuilder.swift */; };
 		DE363CAD2763FF16001EC05B /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE363CAC2763FF16001EC05B /* Template.swift */; };
+		DE363CAF27640024001EC05B /* IR+Operation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE363CAE27640024001EC05B /* IR+Operation.swift */; };
 		DE3C7974260A646300D2F4FF /* dist in Resources */ = {isa = PBXBuildFile; fileRef = DE3C7973260A646300D2F4FF /* dist */; };
 		DE3C7A94260A6C1000D2F4FF /* ApolloUtils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B68353E2463481A00337AE6 /* ApolloUtils.framework */; };
 		DE3C7B4A260A73D800D2F4FF /* AnimalKingdomAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = DE3C79A9260A6ACD00D2F4FF /* AnimalKingdomAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -842,6 +843,7 @@
 		DE2FCF4826E94D150057EA67 /* SelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionTests.swift; sourceTree = "<group>"; };
 		DE3484612746FF8F0065B77E /* IR+OperationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IR+OperationBuilder.swift"; sourceTree = "<group>"; };
 		DE363CAC2763FF16001EC05B /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
+		DE363CAE27640024001EC05B /* IR+Operation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IR+Operation.swift"; sourceTree = "<group>"; };
 		DE3C7973260A646300D2F4FF /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dist; sourceTree = "<group>"; };
 		DE3C79A9260A6ACD00D2F4FF /* AnimalKingdomAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimalKingdomAPI.h; sourceTree = "<group>"; };
 		DE3C79AA260A6ACD00D2F4FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1968,6 +1970,7 @@
 			isa = PBXGroup;
 			children = (
 				DE7C183D272A154400727031 /* IR.swift */,
+				DE363CAE27640024001EC05B /* IR+Operation.swift */,
 				DEFE0FC42748822900FFA440 /* IR+MergedSelectionTree.swift */,
 				DEFBBC85273470F70088AABC /* IR+Field.swift */,
 				DE223C2C2721FCE8004A0148 /* ScopedSelectionSetHashable.swift */,
@@ -2824,6 +2827,7 @@
 				E674DB41274C0A9B009BB90E /* Glob.swift in Sources */,
 				9F1A966C258F34BB00A06EEB /* GraphQLSchema.swift in Sources */,
 				9BE74D3D23FB4A8E006D354F /* FileFinder.swift in Sources */,
+				DE363CAF27640024001EC05B /* IR+Operation.swift in Sources */,
 				9B7B6F59233C287200F32205 /* ApolloCodegen.swift in Sources */,
 				DEFE0FC52748822900FFA440 /* IR+MergedSelectionTree.swift in Sources */,
 				9F62E03F2590896400E6E808 /* GraphQLError.swift in Sources */,

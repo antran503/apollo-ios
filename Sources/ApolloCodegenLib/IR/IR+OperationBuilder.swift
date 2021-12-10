@@ -53,7 +53,11 @@ extension IR {
 
       let irRootField = EntityField(rootField, selectionSet: rootSelectionSet)
 
-      return IR.Operation(definition: operationDefinition, rootField: irRootField)
+      return IR.Operation(
+        definition: operationDefinition,
+        rootField: irRootField,
+        fragmentsUsed: []
+      )
     }
 
     private func buildRootEntity() -> Entity {
