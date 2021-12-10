@@ -213,6 +213,7 @@
 		DE2FCF4526E80CF10057EA67 /* GraphQLOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC750601D2A59C300458D91 /* GraphQLOperation.swift */; };
 		DE2FCF4926E94D150057EA67 /* SelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2FCF4826E94D150057EA67 /* SelectionTests.swift */; };
 		DE3484622746FF8F0065B77E /* IR+OperationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3484612746FF8F0065B77E /* IR+OperationBuilder.swift */; };
+		DE363CAD2763FF16001EC05B /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE363CAC2763FF16001EC05B /* Template.swift */; };
 		DE3C7974260A646300D2F4FF /* dist in Resources */ = {isa = PBXBuildFile; fileRef = DE3C7973260A646300D2F4FF /* dist */; };
 		DE3C7A94260A6C1000D2F4FF /* ApolloUtils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B68353E2463481A00337AE6 /* ApolloUtils.framework */; };
 		DE3C7B4A260A73D800D2F4FF /* AnimalKingdomAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = DE3C79A9260A6ACD00D2F4FF /* AnimalKingdomAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -840,6 +841,7 @@
 		DE2FCF4626E92EAB0057EA67 /* APIv1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIv1.swift; sourceTree = "<group>"; };
 		DE2FCF4826E94D150057EA67 /* SelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionTests.swift; sourceTree = "<group>"; };
 		DE3484612746FF8F0065B77E /* IR+OperationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IR+OperationBuilder.swift"; sourceTree = "<group>"; };
+		DE363CAC2763FF16001EC05B /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
 		DE3C7973260A646300D2F4FF /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dist; sourceTree = "<group>"; };
 		DE3C79A9260A6ACD00D2F4FF /* AnimalKingdomAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimalKingdomAPI.h; sourceTree = "<group>"; };
 		DE3C79AA260A6ACD00D2F4FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1463,6 +1465,7 @@
 				9B7B6F58233C287100F32205 /* ApolloCodegenConfiguration.swift */,
 				E674DB40274C0A9B009BB90E /* Glob.swift */,
 				DEB33435276280F600825F1A /* Generators */,
+				DE363CAC2763FF16001EC05B /* Template.swift */,
 			);
 			name = Codegen;
 			sourceTree = "<group>";
@@ -2812,6 +2815,7 @@
 				DE223C2D2721FCE8004A0148 /* ScopedSelectionSetHashable.swift in Sources */,
 				9B47518D2575AA850001FB87 /* Pluralizer.swift in Sources */,
 				DE7C183C272A12EB00727031 /* TypeScopeDescriptor.swift in Sources */,
+				DE363CAD2763FF16001EC05B /* Template.swift in Sources */,
 				DE7C183E272A154400727031 /* IR.swift in Sources */,
 				9F628E9525935BE600F94F9D /* GraphQLType.swift in Sources */,
 				9BFE8DA9265D5D8F000BBF81 /* URLDownloader.swift in Sources */,
