@@ -1,36 +1,34 @@
 import XCTest
 import Nimble
-import Stencil
 @testable import ApolloCodegenLib
 import ApolloCodegenTestSupport
 @testable import SQLite
 
 class Generate_OperationDefinition_DocumentType_Tests: XCTestCase {
 
-  var environment: Environment!
   var config: ApolloCodegenConfiguration!
+  var definition: CompilationResult.OperationDefinition!
 
   override func setUp() {
     super.setUp()
-    environment = Environment(extensions: [OperationDefinitionExtension()])
+    definition = CompilationResult.OperationDefinition.mock()
   }
 
   override func tearDown() {
-    super.tearDown()
-    environment = nil
+    super.tearDown()    
     config = nil
+    definition = nil
   }
 
   func renderDocumentType() throws -> String {
-    let context: [String: Any] = [
-      "config": try XCTUnwrap(config)
-    ]
-    return try environment.renderTemplate(string: "{% documentType %}", context: context)
+    OperationDefinitionGenerator.DocumentType.render(
+      operation: try XCTUnwrap(definition),
+      apq: try XCTUnwrap(config.apqs)
+    ).description
   }
 
   func test__generate__generatesWithOperationDefinition() throws {
     // given
-    let definition = CompilationResult.OperationDefinition.mock()
     definition.source =
     """
     query NameQuery {

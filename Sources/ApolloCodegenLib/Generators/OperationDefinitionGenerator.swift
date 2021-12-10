@@ -1,81 +1,135 @@
-import Stencil
+import ApolloAPI
 
-class OperationDefinitionExtension: Extension {
-  override init() {
-    super.init()
+struct Template: ExpressibleByStringInterpolation, CustomStringConvertible {
 
-    registerSimpleTag("documentType") { context in
-      """
-      public let
-      """
+  let value: String
+
+  init(stringLiteral: String) {
+    self.value = stringLiteral
+  }
+
+  init(stringInterpolation: StringInterpolation) {
+    self.value = stringInterpolation.output
+  }
+
+  var description: String { value }
+
+  struct StringInterpolation: StringInterpolationProtocol {
+    var output: String
+
+    init(literalCapacity: Int, interpolationCount: Int) {
+      var string = String()
+      string.reserveCapacity(literalCapacity)
+      self.output = string
+    }
+
+    mutating func appendLiteral(_ literal: StringLiteralType) {
+      output.append(literal)
+    }
+
+    mutating func appendInterpolation(_ template: Template) {
+      appendInterpolation(template.value)
+    }
+
+    mutating func appendInterpolation(_ string: String) {
+      let indent = output.reversed().prefix { " \t".contains($0) }
+      if indent.isEmpty {
+        appendLiteral(string)
+      } else {
+        let indentedString = string
+          .split(separator: "\n", omittingEmptySubsequences: false)
+          .joined(separator: "\n" + indent)
+
+        appendLiteral(indentedString)
+      }
+    }
+
+    mutating func appendInterpolation(if bool: Bool, _ string: String) {
+      if bool {
+        appendInterpolation(string)
+      } else {
+        removeLineIfEmpty()
+      }
+    }
+
+    mutating func appendInterpolation(if bool: Bool, _ template: Template) {
+      appendInterpolation(if: bool, template.value)
+    }
+
+    private mutating func removeLineIfEmpty() {
+      let slice = substringToStartOfLine()
+      if !slice.isEmpty && slice.allSatisfy(\.isWhitespace) {
+        output.removeLast(slice.count + 1) // + 1 removes the \n character.
+      }
+    }
+
+    private func substringToStartOfLine() -> Slice<ReversedCollection<String>> {
+      return output.reversed().prefix { !$0.isNewline }
     }
   }
 }
 
-//extension CompilationResult.OperationDefinition: ContextComponent {
-//  let contextKey: String { "operation" }
-//}
-//
 //protocol ContextComponent {
-//  var contextKey: String { get }
-//}
-//
-//extension ContextComponent {
-//  func toContextDictionary() -> [String: Any] {
-//    [Self.contextKey: self]
-//  }
-//}
-//
-//extension Environment {
-//  func renderTemplate(string: String, context: [ContextComponent]) throws -> String {
-//    let context = Dictionary(uniqueKeysWithValues: context.map { ($0.contextKey, )})
-//  }
-//}
-//
-//extension Context {
-//  func push<Result>(
-//    _ contextComponent: ContextComponent,
-//    closure: (() throws -> Result)
-//  ) rethrows -> Result {
-//    try push(dictionary: contextComponent.toContextDictionary(), closure: closure)
-//  }
+//  func toContextDictionary() -> String
 //}
 
-//extension Context {
-//  enum Keys {
-//    static let Schema = "schema"
+//extension CompiliationResult.OperationDefinition: ContextComponent {
+//  func toContextDictionary() -> String {
+//    ["source": ]
 //  }
-//
-//
-//  var schema: Schema {
-//    get { self[Keys.Schema] as! Schema }
-//    set { self[Keys.Schema] = newValue }
-//  }
-
-//  func render(_ templateString: Template) throws -> String {
-////    environment.r
-//  }
-//
 //}
-
 
 enum OperationDefinitionGenerator {
 
-  static func render(
-    operation: CompilationResult.OperationDefinition,
-    in schema: IR.Schema,
-    config: ApolloCodegenConfiguration
-  ) throws -> String {
-    let context: [String: Any] = [
-      "schema": schema,
-      "operation": operation,
-      "config": config
-    ]
-    return try template.render(context)
-  }
+//  static let templates = [
+//    "documentType": DocumentType.template
+//  ]
+//  static let environment = Environment(loader: DictionaryLoader(templates: templates))
+//
+//  static func render(
+//    operation: CompilationResult.OperationDefinition,
+//    in schema: IR.Schema,
+//    config: ApolloCodegenConfiguration
+//  ) throws -> String {
+//    let context: [String: Any] = [
+//      "schema": schema,
+//      "operation": operation,
+//      "config": config
+//    ]
+//    return try environment.renderTemplate(string: template, context: context)
+//  }
+//
+//  private static let template =
+//  """
+//  query \(operation.name) {
+//    \(indented: OperationDefinition.DocumentType.render(operation: operation)
+//  }
+//  """
 
-  private static let template: Template = """
-  query {{ operation.name }}
-  """
+}
+
+extension OperationDefinitionGenerator {
+  enum DocumentType {
+
+    static func render(
+      operation: CompilationResult.OperationDefinition,
+      apq: ApolloCodegenConfiguration.APQConfig
+    ) -> Template {
+      """
+      public let document: DocumentType = .notPersisted(
+        \(if: apq != .disabled,
+        "operationIdentifier: \(operation.operationIdentifier),"
+        )
+        definition: .init(
+        ""\"
+        \(operation.source)
+        ""\"))
+      """
+    }
+
+  }
+}
+
+extension ApolloCodegenConfiguration.APQConfig {
 
 }

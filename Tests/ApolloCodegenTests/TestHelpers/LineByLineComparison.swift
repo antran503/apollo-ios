@@ -26,7 +26,7 @@ public func equalLineByLine(_ expectedValue: String) -> Predicate<String> {
       if actualLine != expectedLine {
         return PredicateResult(
           status: .fail,
-          message: .fail("Line \(index + 1) did not match. Expected \(expectedLine), got \(actualLine).")
+          message: .fail("Line \(index + 1) did not match. Expected \"\(expectedLine)\", got \"\(actualLine)\".")
         )
       }
     }
