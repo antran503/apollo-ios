@@ -31,8 +31,13 @@ struct Template: ExpressibleByStringInterpolation, CustomStringConvertible {
       appendInterpolation(template.value)
     }
 
+    private static let whitespaceNotNewline = Set(" \t")
+
     mutating func appendInterpolation(_ string: String) {
-      let indent = output.reversed().prefix { " \t".contains($0) }
+      let indent = output.reversed().prefix {
+        Template.StringInterpolation.whitespaceNotNewline.contains($0)
+      }
+
       if indent.isEmpty {
         appendLiteral(string)
       } else {
