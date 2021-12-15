@@ -94,6 +94,11 @@ extension IR.Schema {
 }
 
 extension CompilationResult {
+
+  public subscript(operation name: String) -> CompilationResult.OperationDefinition? {
+    return operations.first { $0.name == name }
+  }
+
   public subscript(fragment name: String) -> CompilationResult.FragmentDefinition? {
     return fragments.first { $0.name == name }
   }
