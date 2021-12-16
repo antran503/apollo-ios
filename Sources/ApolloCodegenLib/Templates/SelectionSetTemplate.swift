@@ -59,7 +59,7 @@ struct SelectionSetTemplate {
 
   private func FieldSelectionTemplate(_ field: IR.Field) -> TemplateString {
     """
-    .field("\(field.name)", \(field.type.rendered).self)
+    .field("\(field.name)", \(ifLet: field.alias, {"alias: \"\($0)\", "})\(field.type.rendered).self)
     """
   }
 
